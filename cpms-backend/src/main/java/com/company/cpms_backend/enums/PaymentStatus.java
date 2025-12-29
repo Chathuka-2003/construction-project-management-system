@@ -1,4 +1,7 @@
 package com.company.cpms_backend.enums;
 
-public class PaymentStatus {
+public enum PaymentStatus {
+    PENDING,
+    PAID,
+    FAILED
 }
