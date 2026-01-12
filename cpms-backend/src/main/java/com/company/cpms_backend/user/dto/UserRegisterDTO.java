@@ -1,34 +1,13 @@
 package com.company.cpms_backend.user.dto;
 
 import com.company.cpms_backend.enums.Gender;
-import com.company.cpms_backend.enums.Role;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 public class UserRegisterDTO {
-
-//    @NotBlank(message = "Name is required")
-//    private String name;
-//
-//    @NotBlank(message = "Email is required")
-//    private String email;
-//
-//    @NotBlank(message = "Password is required")
-//    private String password;
-//
-//    @NotNull(message = "Contact number is required")
-//    @Pattern(regexp = "^[0-9]{10}$", message = "Contact number must be 10 digits")
-//    private String contactNumber;
-//
-//    @NotBlank(message = "Address is required")
-//    private String address;
-//
-//    @NotNull(message = "Gender is required")
-//    private Gender gender;
     @NotBlank(message = "Name is required")
     private String name;
 
