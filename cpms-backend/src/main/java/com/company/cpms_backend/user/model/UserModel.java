@@ -43,6 +43,9 @@ private Long id;
     @Column(nullable = false)
     private Gender gender;
 
+    @Column(nullable = false)
+    private Double salary;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
