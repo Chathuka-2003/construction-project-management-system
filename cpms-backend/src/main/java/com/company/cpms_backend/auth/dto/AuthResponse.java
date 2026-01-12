@@ -1,4 +1,12 @@
 package com.company.cpms_backend.auth.dto;
 
-public class AuthDTO {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class AuthResponse {
+    private String token;
+    private String role;
+    private String email;
 }
