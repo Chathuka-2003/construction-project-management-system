@@ -1,4 +1,9 @@
 package com.company.cpms_backend.enums;
 
-public class ProjectStatus {
+public enum ProjectStatus {
+    PLANNING,
+    DESIGN,
+    CONSTRUCTION,
+    FINISHING,
+    HANDOVER
 }

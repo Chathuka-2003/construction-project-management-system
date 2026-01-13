@@ -1,4 +1,11 @@
 package com.company.cpms_backend.enums;
 
-public class Role {
+public enum Role {
+    SUPERADMIN,
+    ADMIN,
+    MANAGER,
+    ENGINEER,
+    OTHER_STAFF,
+    WORKER,
+    CUSTOMER
 }
