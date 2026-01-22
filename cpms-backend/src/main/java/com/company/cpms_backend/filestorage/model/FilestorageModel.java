@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "file_storage")
 @Getter
@@ -23,9 +24,16 @@ public class FilestorageModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fileName;
+    @Column(nullable = false)
     private String fileType;
+    @Column(nullable = false)
     private String filePath;
+
+    @Column(nullable = false)
+    private String fileUrl;
+
 
     private LocalDateTime uploadedAt;
 
