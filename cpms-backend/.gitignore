@@ -32,9 +32,13 @@ build/
 ### VS Code ###
 .vscode/
 
-# IntelliJ IDEA (root)
+# IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 *.ipr
+
+
+# secrets
+cpms-backend/src/main/resources/application.yaml
 

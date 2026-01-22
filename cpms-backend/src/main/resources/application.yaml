@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/cpmsdb
     username: root
-    password: Ijse@1234
+    password: Chathuka@9911
 
   jpa:
     hibernate:
