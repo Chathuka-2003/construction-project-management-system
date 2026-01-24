@@ -10,16 +10,19 @@ import {
   Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../../components/common/DashboardLayout";
 
 /* =======================
    ADMIN OVERVIEW PAGE
 ======================= */
 
-export default function TestPageContent() {
+export default function AdminOverview() {
   const navigate = useNavigate();
+  const role = localStorage.getItem("role") || "admin";
 
   return (
-    <div className="p-6 space-y-10">
+    <DashboardLayout role={role}>
+      <div className="p-6 space-y-10">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800">Admin Overview</h1>
@@ -62,6 +65,7 @@ export default function TestPageContent() {
       {/* Staff Attendance */}
       <StaffAttendancePreview />
     </div>
+    </DashboardLayout>
   );
 }
 
