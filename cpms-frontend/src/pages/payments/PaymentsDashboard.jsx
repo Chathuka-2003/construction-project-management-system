@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import StatCard from "../../components/common/StatCard";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../../components/common/DashboardLayout";
 import {
   CreditCard,
   XCircle,
@@ -18,6 +19,7 @@ import {
 export default function PaymentsDashboard() {
   const [activeTab, setActiveTab] = useState("alerts");
   const navigate = useNavigate();
+  const role = localStorage.getItem("role") || "admin";
 
   // ===== Payment Alerts =====
   const alertsData = [
@@ -51,7 +53,8 @@ export default function PaymentsDashboard() {
   const totalProfit = "$53,900";
 
   return (
-    <div className="p-6">
+    <DashboardLayout role={role}>
+      <div className="p-6">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -175,6 +178,5 @@ export default function PaymentsDashboard() {
           </div>
         </>
       )}
-    </div>
-  );
+    </div>    </DashboardLayout>  );
 }

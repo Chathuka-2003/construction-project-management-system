@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, Briefcase } from "lucide-react";
+import Logo from "../../assets/Logo.png";
 
 export default function CMSLoginForm() {
   const [username, setUsername] = useState("");
@@ -24,21 +25,18 @@ export default function CMSLoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-blue-900 to-gray-900 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
 
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            {/* Placeholder Logo */}
+            {/* Logo */}
             <img
-              src="https://via.placeholder.com/150"
+              src={Logo}
               alt="CMS Logo"
               className="h-32 w-auto"
             />
-            <div className="hidden items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-500 via-green-600 to-teal-400 rounded-2xl">
-              <Briefcase className="w-16 h-16 text-white" />
-            </div>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">echo build</h1>
           <p className="text-gray-400 uppercase tracking-wider text-sm">
