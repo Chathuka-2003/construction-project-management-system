@@ -9,14 +9,17 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import DashboardLayout from "../../components/common/DashboardLayout";
 
 export default function StaffOverview() {
   const [currentDate] = useState(
     new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
   );
+  const role = localStorage.getItem("role") || "staff";
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen p-6">
+    <DashboardLayout role={role}>
+      <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -43,6 +46,7 @@ export default function StaffOverview() {
         <ProjectList />
       </div>
     </div>
+    </DashboardLayout>
   );
 }
 
