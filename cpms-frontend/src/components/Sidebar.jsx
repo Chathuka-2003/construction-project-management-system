@@ -28,7 +28,8 @@ const sidebarItems = [
   { label: "Users", icon: Users, path: "/users", roles: ["staff"] },
   { label: "Workers", icon: Users, path: "/workers", roles: ["staff"] },
 
-  { label: "Profile", icon: User, path: "/profile", roles: ["admin", "staff"] },
+  { label: "Profile", icon: User, path: "/aprofile", roles: ["admin"] },
+  { label: "Profile", icon: User, path: "/sprofile", roles: [ "staff"] },
 ];
 
 export default function Sidebar({ role }) {
