@@ -39,4 +39,10 @@ public class PaymentController {
     public List<PaymentResponseDTO> byProject(@PathVariable Long projectId, Principal principal) {
         return paymentService.getInvoicesByProjectForCompany(principal.getName(), projectId);
     }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public List<PaymentResponseDTO> myPayments(Principal principal) {
+        return paymentService.getMyPayments(principal.getName());
+    }
 }
