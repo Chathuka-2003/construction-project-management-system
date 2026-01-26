@@ -8,32 +8,37 @@ import Register from "./pages/auth/Register";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import ProjectDetails from "./pages/customer/ProjectDetails";
+import TaskProgress from "./pages/customer/TaskProgress";
 import Payments from "./pages/customer/Payments";
 import Appointments from "./pages/customer/Appointments";
 import Messages from "./pages/customer/Messages";
 import Profile from "./pages/customer/Profile";
-import TaskProgress from "./pages/customer/TaskProgress";
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
+      {/* Toaster */}
       <Toaster position="top-center" />
+
       <Routes>
+        {/* Auth */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Customer Routes */}
+        {/* Customer layout */}
         <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<CustomerDashboard />} />
           <Route path="dashboard" element={<CustomerDashboard />} />
-          <Route path="Project-details" element={<ProjectDetails />} />
+          <Route path="project-details" element={<ProjectDetails />} />
+          <Route path="taskprogress" element={<TaskProgress />} />
           <Route path="payments" element={<Payments />} />
           <Route path="appointments" element={<Appointments />} />
           <Route path="messages" element={<Messages />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="taskprogress" element={<TaskProgress />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;
