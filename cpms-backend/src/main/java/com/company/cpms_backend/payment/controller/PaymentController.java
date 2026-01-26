@@ -51,4 +51,7 @@ public class PaymentController {
     public PayHereInitResponse init(@PathVariable Long paymentId, Principal principal) {
         var user = userRepository.findByEmail(principal.getName()).orElseThrow();
 
-    
+        paymentService.getCustomerPaymentOrThrow(principal.getName(), paymentId);
+
+        return payHereService.buildInitPayload(paymentId, user.getEmail(), user.getName());
+    }
