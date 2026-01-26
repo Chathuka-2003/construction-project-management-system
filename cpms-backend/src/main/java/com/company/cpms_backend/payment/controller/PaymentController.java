@@ -31,4 +31,12 @@ public class PaymentController {
     public PaymentResponseDTO create(@Valid @RequestBody PaymentCreateDTO dto, Principal principal) {
         return paymentService.createInvoice(principal.getName(), dto);
     }
+
+
+    // ✅ Company: list invoices by project
+    @GetMapping("/project/{projectId}")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','MANAGER','ENGINEER','OTHER_STAFF')")
+    public List<PaymentResponseDTO> byProject(@PathVariable Long projectId, Principal principal) {
+        return paymentService.getInvoicesByProjectForCompany(principal.getName(), projectId);
+    }
 }
