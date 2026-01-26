@@ -11,3 +11,7 @@ public class PaymentCreateDTO {
 
     @NotNull
     public Double amount;
+
+    public String invoiceNo;   // optional
+    public String dueDate;     // optional "YYYY-MM-DD"
+}
