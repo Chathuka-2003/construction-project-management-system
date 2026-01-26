@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor @AllArgsConstructor
 public class PaymentModel {
 
@@ -33,4 +34,20 @@ public class PaymentModel {
 
     private LocalDate dueDate;
     private LocalDate paidDate;
+    
+    private String gatewayPaymentId;
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "project_id")
+    private ProjectModel project;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (status == null) status = PaymentStatus.PENDING;
+        if (currency == null) currency = "LKR";
+    }
 }
