@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class PayHereNotifyRequest {
-    
+
     private String merchant_id;
 
     private String order_id;
