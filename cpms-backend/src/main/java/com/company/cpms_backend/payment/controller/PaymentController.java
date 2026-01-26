@@ -24,16 +24,13 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final PayHereService payHereService;
     private final UserRepository userRepository;
-
-    // ✅ Company creates invoice
+    
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','MANAGER','ENGINEER','OTHER_STAFF')")
     public PaymentResponseDTO create(@Valid @RequestBody PaymentCreateDTO dto, Principal principal) {
         return paymentService.createInvoice(principal.getName(), dto);
     }
 
-
-    // ✅ Company: list invoices by project
     @GetMapping("/project/{projectId}")
     @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','MANAGER','ENGINEER','OTHER_STAFF')")
     public List<PaymentResponseDTO> byProject(@PathVariable Long projectId, Principal principal) {
@@ -64,3 +61,11 @@ public class PaymentController {
         payHereService.handleNotify(req);
         return "OK";
     }
+
+    @GetMapping("/{paymentId}")
+    public PaymentResponseDTO getOne(@PathVariable Long paymentId) {
+        return paymentService.getOne(paymentId);
+    }
+
+}
+
