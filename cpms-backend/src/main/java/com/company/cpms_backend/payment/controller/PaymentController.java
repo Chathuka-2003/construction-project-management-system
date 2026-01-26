@@ -55,3 +55,12 @@ public class PaymentController {
 
         return payHereService.buildInitPayload(paymentId, user.getEmail(), user.getName());
     }
+
+    @PostMapping(
+            value = "/payhere/notify",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public String notify(@ModelAttribute PayHereNotifyRequest req) {
+        payHereService.handleNotify(req);
+        return "OK";
+    }
