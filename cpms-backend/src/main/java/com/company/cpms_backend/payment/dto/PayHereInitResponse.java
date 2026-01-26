@@ -18,3 +18,12 @@ public class PayHereInitResponse {
     private String amount;
     private String currency;
     private String hash;
+
+    private String first_name;
+    private String last_name;
+    private String email;
+    private String phone;
+    private String address;
+    private String city;
+    private String country;
+}
