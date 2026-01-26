@@ -24,7 +24,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final PayHereService payHereService;
     private final UserRepository userRepository;
-    
+
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','MANAGER','ENGINEER','OTHER_STAFF')")
     public PaymentResponseDTO create(@Valid @RequestBody PaymentCreateDTO dto, Principal principal) {
