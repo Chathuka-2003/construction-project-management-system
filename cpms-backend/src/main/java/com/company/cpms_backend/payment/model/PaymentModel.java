@@ -34,7 +34,7 @@ public class PaymentModel {
 
     private LocalDate dueDate;
     private LocalDate paidDate;
-    
+
     private String gatewayPaymentId;
 
     @Column(updatable = false)
