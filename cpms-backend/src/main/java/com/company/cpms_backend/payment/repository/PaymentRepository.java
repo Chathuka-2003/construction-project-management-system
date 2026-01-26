@@ -9,3 +9,5 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<PaymentModel, Long> {
 
     List<PaymentModel> findAllByProject_IdOrderByCreatedAtDesc(Long projectId);
+
+    List<PaymentModel> findAllByProject_Customer_EmailOrderByCreatedAtDesc(String customerEmail);
