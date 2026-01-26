@@ -12,3 +12,9 @@ public class PayHereInitResponse {
     private String return_url;
     private String cancel_url;
     private String notify_url;
+
+    private String order_id;
+    private String items;
+    private String amount;
+    private String currency;
+    private String hash;
