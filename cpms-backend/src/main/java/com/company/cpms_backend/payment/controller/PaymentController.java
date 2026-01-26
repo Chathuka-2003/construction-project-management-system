@@ -45,4 +45,10 @@ public class PaymentController {
     public List<PaymentResponseDTO> myPayments(Principal principal) {
         return paymentService.getMyPayments(principal.getName());
     }
-}
+
+    @PostMapping("/{paymentId}/payhere/init")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public PayHereInitResponse init(@PathVariable Long paymentId, Principal principal) {
+        var user = userRepository.findByEmail(principal.getName()).orElseThrow();
+
+    
