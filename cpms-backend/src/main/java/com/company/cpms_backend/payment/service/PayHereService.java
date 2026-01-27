@@ -131,3 +131,13 @@ public class PayHereService {
 
         paymentRepository.save(payment);
     }
+
+    private static String safe(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    private static String formatAmount(Double amount) {
+        BigDecimal bd = BigDecimal.valueOf(amount == null ? 0.0 : amount)
+                .setScale(2, RoundingMode.HALF_UP);
+        return bd.toPlainString(); // e.g. 300.00
+    }
