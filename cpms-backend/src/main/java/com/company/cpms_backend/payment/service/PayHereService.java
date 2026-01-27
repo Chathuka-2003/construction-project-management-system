@@ -77,3 +77,14 @@ public class PayHereService {
                 "", "", "", "Sri Lanka"
         );
     }
+
+    public void handleNotify(PayHereNotifyRequest n) {
+
+        if (n == null) return;
+
+        String mIdFromPayHere = safe(n.getMerchant_id());
+        String orderId = safe(n.getOrder_id());
+        String payhereAmount = safe(n.getPayhere_amount());
+        String payhereCurrency = safe(n.getPayhere_currency());
+        String statusCode = safe(n.getStatus_code());
+        String md5sig = safe(n.getMd5sig());
