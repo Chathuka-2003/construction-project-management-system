@@ -141,3 +141,8 @@ public class PayHereService {
                 .setScale(2, RoundingMode.HALF_UP);
         return bd.toPlainString(); // e.g. 300.00
     }
+
+    private static String payhereHash(String merchantId, String orderId, String amount, String currency, String secret) {
+        String secretMd5Upper = md5(secret).toUpperCase();
+        return md5(merchantId + orderId + amount + currency + secretMd5Upper).toUpperCase();
+    }
