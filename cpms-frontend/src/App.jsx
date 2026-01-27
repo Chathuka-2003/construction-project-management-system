@@ -10,8 +10,10 @@ import StaffProfile from "./pages/staff/StaffProfile";
 import AdminProfile from "./pages/admin/AdminProfile";
 import AllocationDashboard from "./pages/allocation/AllocationDashboard";
 import WorkerManagementDashboard from "./pages/admin/WorkerManagementDashboard";
-
-
+import VehicleDashboard from "./pages/vehicle/VehicleDashboard";
+import VehicleAssignment from "./pages/vehicle/VehicleAssignments";
+import ManageVehicles from "./pages/vehicle/ManageVehicles";
+import WorkerTasks from "./pages/worker/WorkerTasks";
 function App() {
   return (
     <Router>
@@ -27,6 +29,10 @@ function App() {
         <Route path="/aprofile" element={<AdminProfile />} />
         <Route path="/allocation" element={<AllocationDashboard />} />
         <Route path="/workermanagement" element={<WorkerManagementDashboard />} />
+        <Route path="/vehicle" element={<VehicleDashboard />} />
+        <Route path="/assignment" element={<VehicleAssignment />} />
+        <Route path="/manage" element={<ManageVehicles />} />
+        <Route path="/worker" element={<WorkerTasks />} />
       </Routes>
     </Router>
   );
