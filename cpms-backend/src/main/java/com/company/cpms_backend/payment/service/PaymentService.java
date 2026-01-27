@@ -81,3 +81,28 @@ public class PaymentService {
         return paymentRepository.findAllByProject_IdOrderByCreatedAtDesc(projectId)
                 .stream().map(this::toDto).toList();
     }
+
+    public List<PaymentResponseDTO> getMyPayments(String customerEmail) {
+        UserModel customer = userRepository.findByEmail(customerEmail).orElseThrow();
+        if (customer.getRole() != Role.CUSTOMER) throw new AccessDeniedException("Only customer");
+
+        return paymentRepository.findAllByProject_Customer_EmailOrderByCreatedAtDesc(customerEmail)
+                .stream().map(this::toDto).toList();
+    }
+
+    public PaymentModel getCustomerPaymentOrThrow(String customerEmail, Long paymentId) {
+        PaymentModel p = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
+
+        if (p.getProject().getCustomer() == null ||
+                !p.getProject().getCustomer().getEmail().equals(customerEmail)) {
+            throw new ForbiddenException("Not your invoice");
+        }
+        return p;
+    }
+
+    public PaymentResponseDTO getOne(Long paymentId) {
+        PaymentModel p = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
+        return toDto(p);
+    }
