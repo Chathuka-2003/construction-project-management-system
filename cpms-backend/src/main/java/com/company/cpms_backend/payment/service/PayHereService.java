@@ -107,3 +107,15 @@ public class PayHereService {
             // ignore invalid signature
             return;
         }
+
+        Long paymentId;
+        try {
+            paymentId = Long.valueOf(orderId);
+        } catch (Exception e) {
+            return;
+        }
+
+        PaymentModel payment = paymentRepository.findById(paymentId).orElse(null);
+        if (payment == null) return;
+
+        payment.setGatewayPaymentId(safe(n.getPayment_id()));
