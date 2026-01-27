@@ -51,3 +51,33 @@ public class PaymentService {
         String invoiceNo = (dto.invoiceNo != null && !dto.invoiceNo.isBlank())
                 ? dto.invoiceNo.trim()
                 : generateInvoiceNo();
+
+        paymentRepository.findByInvoiceNo(invoiceNo).ifPresent(p -> {
+            throw new ValidationException("invoiceNo already exists: " + invoiceNo);
+        });
+
+        PaymentModel p = new PaymentModel();
+        p.setProject(project);
+        p.setAmount(dto.amount);
+        p.setStatus(PaymentStatus.PENDING);
+        p.setCurrency("LKR");
+        p.setInvoiceNo(invoiceNo);
+
+        if (dto.dueDate != null && !dto.dueDate.isBlank()) {
+            p.setDueDate(LocalDate.parse(dto.dueDate.trim()));
+        }
+
+        return toDto(paymentRepository.save(p));
+    }
+
+    public List<PaymentResponseDTO> getInvoicesByProjectForCompany(String companyEmail, Long projectId) {
+        UserModel actor = userRepository.findByEmail(companyEmail).orElseThrow();
+
+        switch (actor.getRole()) {
+            case SUPERADMIN, ADMIN, MANAGER, ENGINEER, OTHER_STAFF -> {}
+            default -> throw new AccessDeniedException("Not allowed");
+        }
+
+        return paymentRepository.findAllByProject_IdOrderByCreatedAtDesc(projectId)
+                .stream().map(this::toDto).toList();
+    }
