@@ -88,3 +88,8 @@ public class PayHereService {
         String payhereCurrency = safe(n.getPayhere_currency());
         String statusCode = safe(n.getStatus_code());
         String md5sig = safe(n.getMd5sig());
+
+        if (!mIdFromPayHere.equals(merchantId.trim())) {
+            // ignore - not for this merchant
+            return;
+        }
