@@ -27,3 +27,27 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+
+    public PaymentResponseDTO createInvoice(String companyEmail, PaymentCreateDTO dto) {
+
+        UserModel actor = userRepository.findByEmail(companyEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        switch (actor.getRole()) {
+            case SUPERADMIN, ADMIN, MANAGER, ENGINEER, OTHER_STAFF -> {}
+            default -> throw new AccessDeniedException("Not allowed");
+        }
+
+        if (dto.projectId == null) throw new ValidationException("projectId required");
+        if (dto.amount == null || dto.amount <= 0) throw new ValidationException("amount must be > 0");
+
+        ProjectModel project = projectRepository.findById(dto.projectId)
+                .orElseThrow(() -> new ValidationException("Project not found: " + dto.projectId));
+
+        if (project.getCustomer() == null) {
+            throw new ValidationException("This project has no customer assigned");
+        }
+
+        String invoiceNo = (dto.invoiceNo != null && !dto.invoiceNo.isBlank())
+                ? dto.invoiceNo.trim()
+                : generateInvoiceNo();
