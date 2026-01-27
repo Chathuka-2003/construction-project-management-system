@@ -28,6 +28,7 @@ public class PaymentService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
+    // -------- Company --------
     public PaymentResponseDTO createInvoice(String companyEmail, PaymentCreateDTO dto) {
 
         UserModel actor = userRepository.findByEmail(companyEmail)
@@ -52,6 +53,7 @@ public class PaymentService {
                 ? dto.invoiceNo.trim()
                 : generateInvoiceNo();
 
+        // prevent duplicates
         paymentRepository.findByInvoiceNo(invoiceNo).ifPresent(p -> {
             throw new ValidationException("invoiceNo already exists: " + invoiceNo);
         });
@@ -82,6 +84,7 @@ public class PaymentService {
                 .stream().map(this::toDto).toList();
     }
 
+    // -------- Customer --------
     public List<PaymentResponseDTO> getMyPayments(String customerEmail) {
         UserModel customer = userRepository.findByEmail(customerEmail).orElseThrow();
         if (customer.getRole() != Role.CUSTOMER) throw new AccessDeniedException("Only customer");
@@ -106,3 +109,25 @@ public class PaymentService {
                 .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
         return toDto(p);
     }
+
+    // -------- Helpers --------
+    private PaymentResponseDTO toDto(PaymentModel p) {
+        return new PaymentResponseDTO(
+                p.getId(),
+                p.getProject().getId(),
+                p.getInvoiceNo(),
+                p.getAmount(),
+                p.getStatus().name(),
+                p.getDueDate() != null ? p.getDueDate().toString() : null,
+                p.getPaidDate() != null ? p.getPaidDate().toString() : null,
+                p.getCreatedAt() != null ? p.getCreatedAt().toString() : null
+        );
+    }
+
+    private String generateInvoiceNo() {
+        String y = String.valueOf(Year.now().getValue());
+        String suffix = String.valueOf(System.currentTimeMillis());
+        suffix = suffix.substring(Math.max(0, suffix.length() - 6));
+        return "INV-" + y + "-" + suffix;
+    }
+}
