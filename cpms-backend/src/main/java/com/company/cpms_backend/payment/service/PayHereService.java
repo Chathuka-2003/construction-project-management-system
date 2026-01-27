@@ -119,3 +119,15 @@ public class PayHereService {
         if (payment == null) return;
 
         payment.setGatewayPaymentId(safe(n.getPayment_id()));
+
+        switch (statusCode) {
+            case "2" -> {
+                payment.setStatus(PaymentStatus.PAID);
+                payment.setPaidDate(LocalDate.now());
+            }
+            case "0" -> payment.setStatus(PaymentStatus.PENDING);
+            default -> payment.setStatus(PaymentStatus.FAILED);
+        }
+
+        paymentRepository.save(payment);
+    }
