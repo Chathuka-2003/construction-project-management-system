@@ -93,3 +93,17 @@ public class PayHereService {
             // ignore - not for this merchant
             return;
         }
+
+        String localSig = payhereMd5Sig(
+                mIdFromPayHere,
+                orderId,
+                payhereAmount,
+                payhereCurrency,
+                statusCode,
+                merchantSecret.trim()
+        );
+
+        if (md5sig.isEmpty() || !localSig.equalsIgnoreCase(md5sig)) {
+            // ignore invalid signature
+            return;
+        }
