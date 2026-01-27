@@ -78,6 +78,10 @@ public class PayHereService {
         );
     }
 
+    /**
+     * PayHere notify_url handler.
+     * Important: validate md5sig before changing DB.
+     */
     public void handleNotify(PayHereNotifyRequest n) {
 
         if (n == null) return;
@@ -89,11 +93,13 @@ public class PayHereService {
         String statusCode = safe(n.getStatus_code());
         String md5sig = safe(n.getMd5sig());
 
+        // 1) Merchant check
         if (!mIdFromPayHere.equals(merchantId.trim())) {
             // ignore - not for this merchant
             return;
         }
 
+        // 2) Signature check (MOST IMPORTANT)
         String localSig = payhereMd5Sig(
                 mIdFromPayHere,
                 orderId,
@@ -108,6 +114,7 @@ public class PayHereService {
             return;
         }
 
+        // 3) Update payment
         Long paymentId;
         try {
             paymentId = Long.valueOf(orderId);
@@ -120,6 +127,7 @@ public class PayHereService {
 
         payment.setGatewayPaymentId(safe(n.getPayment_id()));
 
+        // PayHere: 2=success, 0=pending, -1 canceled, -2 failed, -3 chargedback
         switch (statusCode) {
             case "2" -> {
                 payment.setStatus(PaymentStatus.PAID);
@@ -132,6 +140,8 @@ public class PayHereService {
         paymentRepository.save(payment);
     }
 
+    // ---------- helpers ----------
+
     private static String safe(String s) {
         return s == null ? "" : s.trim();
     }
@@ -142,7 +152,28 @@ public class PayHereService {
         return bd.toPlainString(); // e.g. 300.00
     }
 
+    // hash for init (JS)
     private static String payhereHash(String merchantId, String orderId, String amount, String currency, String secret) {
         String secretMd5Upper = md5(secret).toUpperCase();
         return md5(merchantId + orderId + amount + currency + secretMd5Upper).toUpperCase();
     }
+
+    // md5sig verify for notify_url
+    private static String payhereMd5Sig(String merchantId, String orderId, String payhereAmount,
+                                        String payhereCurrency, String statusCode, String secret) {
+        String secretMd5Upper = md5(secret).toUpperCase();
+        return md5(merchantId + orderId + payhereAmount + payhereCurrency + statusCode + secretMd5Upper).toUpperCase();
+    }
+
+    private static String md5(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(s.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
