@@ -14,6 +14,14 @@ import VehicleDashboard from "./pages/vehicle/VehicleDashboard";
 import VehicleAssignment from "./pages/vehicle/VehicleAssignments";
 import ManageVehicles from "./pages/vehicle/ManageVehicles";
 import WorkerTasks from "./pages/worker/WorkerTasks";
+import Navbar from "./components/common/Navbar.jsx";
+import Footer from "./components/common/Footer.jsx";
+import StaffDashboard from "./pages/staff/StaffDashboard.jsx";
+import AssignedProjects from "./pages/staff/AssignedProjects.jsx";
+import TaskManagement from "./pages/staff/TaskManagement.jsx";
+import StaffAppointments from "./pages/staff/StaffAppointments.jsx";
+import Messages from "./pages/staff/Messages.jsx";
+import "./app.css";
 function App() {
   return (
     <Router>
@@ -33,6 +41,11 @@ function App() {
         <Route path="/assignment" element={<VehicleAssignment />} />
         <Route path="/manage" element={<ManageVehicles />} />
         <Route path="/worker" element={<WorkerTasks />} />
+        <Route path="/dashboard" element={<StaffDashboard />} />
+        <Route path="/projects" element={<AssignedProjects />} />
+        <Route path="/tasks" element={<TaskManagement />} />
+        <Route path="/appointments" element={<StaffAppointments />} />
+        <Route path="/messages" element={<Messages />} />
       </Routes>
     </Router>
   );
