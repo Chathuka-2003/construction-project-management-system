@@ -1,22 +1,15 @@
-import "..app.css";
-
-export default function Card({ title, subtitle, right, accentColor, onClick, children }) {
+export default function Footer() {
   return (
-    <div
-      className={`card ${onClick ? "clickable" : ""}`}
-      onClick={onClick}
-      style={accentColor ? { borderLeft: `8px solid ${accentColor}` } : undefined}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+    <footer
+      className="
+        fixed left-0 right-0 bottom-0 z-50
+        bg-[#4b3f3a] text-white
+        px-[18px] py-[10px]
+        flex items-center justify-center
+        text-[13px]
+      "
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <div>
-          <p className="card-title">{title}</p>
-          {subtitle ? <p className="card-sub">{subtitle}</p> : null}
-        </div>
-        {right ? <div>{right}</div> : null}
-      </div>
-      {children}
-    </div>
+      © {new Date().getFullYear()} EcoBuild — All rights reserved
+    </footer>
   );
 }
