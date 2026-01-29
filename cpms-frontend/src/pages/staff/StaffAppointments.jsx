@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
-import { useStore } from "../components/store/AppStore.jsx";
-import UploadModal from "../components/modals/UploadModal.jsx";
-import ConfirmDialog from "../components/modals/ConfirmDialog.jsx";
+import { useNavigate } from "react-router-dom";
+import { useStore } from "../../components/store/AppStore.jsx";
+import UploadModal from "../../components/modals/UploadModal.jsx";
+import ConfirmDialog from "../../components/modals/ConfirmDialog.jsx";
 
 function emptyForm() {
   return { title: "", location: "", date: "", time: "" };
 }
 
 function toISO(date, time) {
-  // date: YYYY-MM-DD, time: HH:MM
   return `${date}T${time}`;
 }
 
@@ -19,13 +19,13 @@ function splitISO(dateTime) {
 
 export default function StaffAppointments() {
   const { data, addAppointment, updateAppointment, deleteAppointment } = useStore();
+  const navigate = useNavigate();
 
   const [openForm, setOpenForm] = useState(false);
-  const [editing, setEditing] = useState(null); // appointment object
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm());
-  const [confirm, setConfirm] = useState(null); // id to delete
+  const [confirm, setConfirm] = useState(null);
 
-  // sort appointments by date (earliest first)
   const appointments = useMemo(() => {
     return [...(data.appointments || [])].sort(
       (a, b) => new Date(a.dateTime) - new Date(b.dateTime)
@@ -69,61 +69,86 @@ export default function StaffAppointments() {
   };
 
   return (
-    <div className="card">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+    <div className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h2 style={{ margin: "0 0 6px 0" }}>Appointments</h2>
-          <p className="card-sub" style={{ margin: 0 }}>
+          <h2 className="m-0 text-[22px] font-extrabold">Appointments</h2>
+          <p className="text-[#6f6f6f] text-[13px] mt-1 mb-0">
             Upcoming meetings and site visits
           </p>
         </div>
 
-        <button className="btn primary" onClick={startAdd}>
+        <button
+          className="border-0 cursor-pointer font-bold rounded-[10px] px-3 py-2 bg-[#4b3f3a] text-white"
+          onClick={startAdd}
+          type="button"
+        >
           + New Appointment
         </button>
       </div>
 
-      <div className="hr" />
+      <div className="h-px bg-[#eee] my-3" />
 
       {appointments.length === 0 ? (
-        <p className="card-sub">No appointments scheduled.</p>
+        <p className="text-[#6f6f6f] text-[13px]">No appointments scheduled.</p>
       ) : (
-        appointments.map((a) => (
-          <div
-            key={a.id}
-            style={{
-              background: "#fff",
-              padding: "14px",
-              borderRadius: "12px",
-              marginBottom: "12px",
-              boxShadow: "0 6px 16px rgba(0,0,0,.08)",
-              borderLeft: "6px solid #d28b5c",
-            }}
-          >
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <h4 style={{ margin: "0 0 6px 0" }}>{a.title}</h4>
+        <div className="space-y-3">
+          {appointments.map((a) => (
+            <div
+              key={a.id}
+              className="bg-white p-[14px] rounded-[12px] shadow-[0_6px_16px_rgba(0,0,0,.08)] border-l-[6px] border-l-[#d28b5c]"
+            >
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div>
+                  <h4 className="m-0 mb-1 font-extrabold">{a.title}</h4>
 
-                <div style={{ fontSize: "13px", color: "#555" }}>
-                  📅 {new Date(a.dateTime).toLocaleString()}
+                  <div className="text-[13px] text-[#555]">
+                    📅 {new Date(a.dateTime).toLocaleString()}
+                  </div>
+
+                  <div className="text-[13px] text-[#555]">
+                    📍 {a.location}
+                  </div>
+
+                  {a.conversationId ? (
+                    <div className="text-[12px] text-[#777] mt-2">
+                      💬 Linked chat: #{a.conversationId}
+                    </div>
+                  ) : null}
                 </div>
 
-                <div style={{ fontSize: "13px", color: "#555" }}>
-                  📍 {a.location}
-                </div>
-              </div>
+                <div className="flex gap-2 flex-wrap items-center justify-end">
+                  {a.conversationId ? (
+                    <button
+                      className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-[10px] py-2 text-[13px]"
+                      onClick={() => navigate(`/messages?c=${a.conversationId}`)}
+                      type="button"
+                    >
+                      Open Chat
+                    </button>
+                  ) : null}
 
-              <div className="row" style={{ gap: 8 }}>
-                <button className="btn ghost small" onClick={() => startEdit(a)}>
-                  Edit
-                </button>
-                <button className="btn danger small" onClick={() => setConfirm(a.id)}>
-                  Delete
-                </button>
+                  <button
+                    className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-[10px] py-2 text-[13px]"
+                    onClick={() => startEdit(a)}
+                    type="button"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="cursor-pointer font-bold rounded-[10px] bg-[#c0392b] text-white px-[10px] py-2 text-[13px]"
+                    onClick={() => setConfirm(a.id)}
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
 
       {/* Add/Edit Modal */}
@@ -132,41 +157,51 @@ export default function StaffAppointments() {
           title={editing ? "Edit Appointment" : "New Appointment"}
           onClose={() => setOpenForm(false)}
         >
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="grid gap-[10px]">
             <input
-              className="input"
+              className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
               placeholder="Appointment title (e.g., Client Meeting)"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
             />
 
             <input
-              className="input"
+              className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
               placeholder="Location (e.g., Conference Room A)"
               value={form.location}
-              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, location: e.target.value }))
+              }
             />
 
-            <div className="row">
+            <div className="flex gap-2 flex-wrap items-center">
               <input
-                className="input"
+                className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
               />
               <input
-                className="input"
+                className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
                 type="time"
                 value={form.time}
                 onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
               />
             </div>
 
-            <div className="row" style={{ justifyContent: "flex-end", gap: 10 }}>
-              <button className="btn ghost" onClick={() => setOpenForm(false)}>
+            <div className="flex gap-2 flex-wrap items-center justify-end">
+              <button
+                className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-3 py-2"
+                onClick={() => setOpenForm(false)}
+                type="button"
+              >
                 Cancel
               </button>
-              <button className="btn primary" onClick={save}>
+              <button
+                className="cursor-pointer font-bold rounded-[10px] px-3 py-2 bg-[#4b3f3a] text-white"
+                onClick={save}
+                type="button"
+              >
                 Save
               </button>
             </div>
