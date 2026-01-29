@@ -4,25 +4,29 @@ export default function ExpandSection({ title, count, defaultOpen = false, child
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="card">
-      <div
-        className="row"
-        style={{ justifyContent: "space-between", cursor: "pointer" }}
-        onClick={() => setOpen(o => !o)}
+    <div className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4">
+      {/* Header */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-2 cursor-pointer select-none text-left"
+        aria-expanded={open}
       >
         <div>
-          <b>{title}</b>
-          <span className="card-sub"> ({count})</span>
+          <b className="text-[14px]">{title}</b>
+          <span className="text-[#6f6f6f] text-[13px]"> ({count})</span>
         </div>
-        <span>{open ? "▾" : "▸"}</span>
-      </div>
 
-      {open && (
+        <span className="text-[18px]">{open ? "▾" : "▸"}</span>
+      </button>
+
+      {/* Content */}
+      {open ? (
         <>
-          <div className="hr" />
+          <div className="h-px bg-[#eee] my-3" />
           {children}
         </>
-      )}
+      ) : null}
     </div>
   );
 }
