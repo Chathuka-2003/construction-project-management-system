@@ -1,9 +1,15 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const StoreContext = createContext(null);
 const LS_KEY = "ecobuild_frontend_store_v1";
 
-const todayISO = () => {
+export const todayISO = () => {
   const d = new Date();
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -60,18 +66,43 @@ const seed = () => {
     ],
 
     appointments: [
-      { id: 1, title: "Client Meeting - Project Review", dateTime: "2026-01-16T15:00", location: "Conference Room A" },
-      { id: 2, title: "Site Visit - Foundation Inspection", dateTime: "2026-01-17T10:00", location: "Riverside Site" },
+      {
+        id: 1,
+        title: "Client Meeting - Project Review",
+        dateTime: "2026-01-16T15:00",
+        location: "Conference Room A",
+      },
+      {
+        id: 2,
+        title: "Site Visit - Foundation Inspection",
+        dateTime: "2026-01-17T10:00",
+        location: "Riverside Site",
+      },
     ],
 
-    // ✅ Keep this as "notifications" (badge etc.)
+    // notifications
     messages: [
-      { id: 1, text: "New task assigned: Review architectural plans", createdAt: new Date().toISOString(), read: false },
-      { id: 2, text: "Meeting scheduled for tomorrow 2:00 PM", createdAt: new Date(Date.now() - 3600 * 1000).toISOString(), read: false },
-      { id: 3, text: "Task completed: Material inspection approved", createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(), read: true },
+      {
+        id: 1,
+        text: "New task assigned: Review architectural plans",
+        createdAt: new Date().toISOString(),
+        read: false,
+      },
+      {
+        id: 2,
+        text: "Meeting scheduled for tomorrow 2:00 PM",
+        createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
+        read: false,
+      },
+      {
+        id: 3,
+        text: "Task completed: Material inspection approved",
+        createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
+        read: true,
+      },
     ],
 
-    // ✅ NEW: Conversations list (left panel)
+    // conversations list
     conversations: [
       {
         id: 1,
@@ -99,7 +130,7 @@ const seed = () => {
       },
     ],
 
-    // ✅ NEW: Chat messages (right panel)
+    // chat messages
     chatMessages: [
       {
         id: 101,
@@ -200,6 +231,7 @@ export function AppStoreProvider({ children }) {
 
     const deleteTask = (id) =>
       setData((d) => ({ ...d, tasks: d.tasks.filter((t) => t.id !== id) }));
+
     // Appointments
     const addAppointment = (a) =>
       setData((d) => ({
@@ -210,13 +242,18 @@ export function AppStoreProvider({ children }) {
     const updateAppointment = (id, patch) =>
       setData((d) => ({
         ...d,
-        appointments: d.appointments.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+        appointments: d.appointments.map((a) =>
+          a.id === id ? { ...a, ...patch } : a
+        ),
       }));
 
     const deleteAppointment = (id) =>
-      setData((d) => ({ ...d, appointments: d.appointments.filter((a) => a.id !== id) }));
+      setData((d) => ({
+        ...d,
+        appointments: d.appointments.filter((a) => a.id !== id),
+      }));
 
-    // Notifications (existing)
+    // Notifications
     const markMessageRead = (id) =>
       setData((d) => ({
         ...d,
@@ -224,9 +261,12 @@ export function AppStoreProvider({ children }) {
       }));
 
     const markAllMessagesRead = () =>
-      setData((d) => ({ ...d, messages: d.messages.map((m) => ({ ...m, read: true })) }));
+      setData((d) => ({
+        ...d,
+        messages: d.messages.map((m) => ({ ...m, read: true })),
+      }));
 
-    // ✅ Chat: send + mark read
+    // Chat
     const sendMessage = (conversationId, text) =>
       setData((d) => {
         const now = new Date().toISOString();
@@ -245,9 +285,7 @@ export function AppStoreProvider({ children }) {
             },
           ],
           conversations: (d.conversations || []).map((c) =>
-            c.id === conversationId
-              ? { ...c, subtitle: text, lastMessageAt: now }
-              : c
+            c.id === conversationId ? { ...c, subtitle: text, lastMessageAt: now } : c
           ),
         };
       });
@@ -260,13 +298,12 @@ export function AppStoreProvider({ children }) {
           if (c.id === conversationId && c.unread !== 0) {
             changed = true;
             return { ...c, unread: 0 };
-        }
-        return c;
+          }
+          return c;
         });
 
-    // 🔒 If nothing changed, return SAME state object
-    return changed ? { ...d, conversations } : d;
-     });
+        return changed ? { ...d, conversations } : d;
+      });
 
     // Profile
     const updateProfile = (patch) =>
@@ -286,6 +323,10 @@ export function AppStoreProvider({ children }) {
       updateTask,
       deleteTask,
 
+      addAppointment,
+      updateAppointment,
+      deleteAppointment,
+
       // notifications
       markMessageRead,
       markAllMessagesRead,
@@ -297,11 +338,6 @@ export function AppStoreProvider({ children }) {
       updateProfile,
       setTasksView,
       todayISO,
-
-      addAppointment,
-      updateAppointment,
-      deleteAppointment,
-
     };
   }, [data]);
 
