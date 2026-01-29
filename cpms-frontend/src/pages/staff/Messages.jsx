@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useStore } from "../components/store/AppStore.jsx";
+import { useSearchParams } from "react-router-dom";
+import { useStore } from "../../components/store/AppStore.jsx";
+import UploadModal from "../../components/modals/UploadModal.jsx";
 
 const FILTERS = [
   { key: "all", label: "All" },
   { key: "project", label: "Projects" },
   { key: "customer", label: "Customers" },
+  { key: "admin", label: "Admin" },
 ];
 
 function timeLabel(iso) {
@@ -13,25 +16,65 @@ function timeLabel(iso) {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function toISO(date, time) {
+  return `${date}T${time}`;
+}
+
+function avatarBg(kind) {
+  if (kind === "project") return "bg-[#b56c3f]";
+  if (kind === "customer") return "bg-[#2e9c5b]";
+  return "bg-[#9a6b4a]";
+}
+
 export default function Messages() {
-  const { data, sendMessage, markConversationRead } = useStore();
+  const {
+    data,
+    sendMessage,
+    markConversationRead,
+    addAppointment,
+  } = useStore();
+
+  const [params] = useSearchParams();
 
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
-  const [activeId, setActiveId] = useState(data.conversations?.[0]?.id || null);
+  const [activeId, setActiveId] = useState(
+    data.conversations?.[0]?.id || null
+  );
   const [text, setText] = useState("");
+
+  const [openAppt, setOpenAppt] = useState(false);
+  const [appt, setAppt] = useState({
+    title: "",
+    location: "",
+    date: "",
+    time: "",
+  });
+
+  // open conversation from URL ?c=
+  useEffect(() => {
+    const cid = params.get("c");
+    if (cid != null) {
+      const num = Number(cid);
+      setActiveId(Number.isNaN(num) ? cid : num);
+    }
+  }, [params]);
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
     let arr = [...(data.conversations || [])];
 
     if (filter !== "all") arr = arr.filter((c) => c.kind === filter);
-
     if (needle) {
-      arr = arr.filter((c) => (c.title || "").toLowerCase().includes(needle));
+      arr = arr.filter((c) =>
+        (c.title || "").toLowerCase().includes(needle)
+      );
     }
 
-    arr.sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+    arr.sort(
+      (a, b) =>
+        new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0)
+    );
     return arr;
   }, [data.conversations, q, filter]);
 
@@ -49,20 +92,13 @@ export default function Messages() {
   const scrollerRef = useRef(null);
 
   useEffect(() => {
-    // mark read when switching
     if (activeId != null) markConversationRead(activeId);
-  }, [activeId,]);
+  }, [activeId, markConversationRead]);
 
   useEffect(() => {
-    // auto scroll bottom
     const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [msgs.length, activeId]);
-
-  const openConversation = (id) => {
-    setActiveId(id);
-  };
 
   const onSend = () => {
     const t = text.trim();
@@ -71,30 +107,51 @@ export default function Messages() {
     setText("");
   };
 
-  return (
-    <div className="msg-shell">
-      {/* LEFT */}
-      <aside className="msg-left">
-        <div className="msg-left-head">
-          <h3 className="msg-title">Messages</h3>
+  const saveAppointment = () => {
+    if (!activeId) return;
 
-          <div className="msg-search">
-            <span className="msg-search-icon">⌕</span>
+    if (!appt.title.trim()) return alert("Appointment title is required");
+    if (!appt.location.trim()) return alert("Location is required");
+    if (!appt.date) return alert("Date is required");
+    if (!appt.time) return alert("Time is required");
+
+    addAppointment({
+      title: appt.title.trim(),
+      location: appt.location.trim(),
+      dateTime: toISO(appt.date, appt.time),
+    });
+
+    setOpenAppt(false);
+    setAppt({ title: "", location: "", date: "", time: "" });
+  };
+
+  return (
+    <div className="grid min-h-[70vh] gap-3 md:grid-cols-[360px_1fr]">
+      {/* LEFT */}
+      <aside className="bg-white border border-[#eee] rounded-[14px] flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-[#eee]">
+          <h3 className="font-bold mb-2">Messages</h3>
+
+          <div className="flex items-center gap-2 bg-[#f6f6f6] border border-[#e6e6e6] rounded-[10px] px-3 py-2">
+            <span>⌕</span>
             <input
-              className="msg-search-input"
+              className="bg-transparent outline-none w-full"
               placeholder="Search conversations..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
           </div>
 
-          <div className="msg-filters">
+          <div className="flex gap-2 mt-3 flex-wrap">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
-                className={`msg-filter ${filter === f.key ? "active" : ""}`}
                 onClick={() => setFilter(f.key)}
-                type="button"
+                className={`px-3 py-1 rounded-full border text-sm ${
+                  filter === f.key
+                    ? "bg-[#b56c3f] text-white border-[#b56c3f]"
+                    : "bg-white border-[#e6e6e6]"
+                }`}
               >
                 {f.label}
               </button>
@@ -102,86 +159,184 @@ export default function Messages() {
           </div>
         </div>
 
-        <div className="msg-list">
+        <div className="flex-1 overflow-auto p-2">
           {list.map((c) => (
             <button
               key={c.id}
-              type="button"
-              onClick={() => openConversation(c.id)}
-              className={`msg-item ${c.id === activeId ? "active" : ""}`}
+              onClick={() => setActiveId(c.id)}
+              className={`w-full flex gap-3 items-center p-2 rounded-[12px] text-left ${
+                c.id === activeId
+                  ? "bg-[#fff8f3] border border-[#e7d6cb]"
+                  : "hover:bg-[#fafafa]"
+              }`}
             >
-              <div className={`msg-avatar ${c.kind}`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${avatarBg(
+                  c.kind
+                )}`}
+              >
                 {c.kind === "project" ? "🏗️" : c.kind === "customer" ? "👤" : "🛡️"}
               </div>
 
-              <div className="msg-item-mid">
-                <div className="msg-item-top">
-                  <b className="msg-item-title">{c.title}</b>
-                  <span className="msg-item-time">{timeLabel(c.lastMessageAt)}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between">
+                  <b className="truncate">{c.title}</b>
+                  <span className="text-xs text-gray-400">
+                    {timeLabel(c.lastMessageAt)}
+                  </span>
                 </div>
-                <div className="msg-item-sub">{c.subtitle}</div>
+                <div className="text-sm text-gray-500 truncate">
+                  {c.subtitle}
+                </div>
               </div>
 
-              {c.unread > 0 ? <div className="msg-badge">{c.unread}</div> : null}
+              {c.unread > 0 && (
+                <span className="bg-[#b56c3f] text-white text-xs px-2 rounded-full">
+                  {c.unread}
+                </span>
+              )}
             </button>
           ))}
-
-          {list.length === 0 ? (
-            <div className="msg-empty">No conversations found.</div>
-          ) : null}
         </div>
       </aside>
 
       {/* RIGHT */}
-      <section className="msg-right">
+      <section className="bg-white border border-[#eee] rounded-[14px] flex flex-col overflow-hidden">
         {!active ? (
-          <div className="msg-blank">Select a conversation</div>
+          <div className="flex-1 flex items-center justify-center text-gray-400">
+            Select a conversation
+          </div>
         ) : (
           <>
-            <div className="msg-right-head">
-              <div className={`msg-avatar big ${active.kind}`}>
-                {active.kind === "project" ? "🏗️" : active.kind === "customer" ? "👤" : "🛡️"}
+            <div className="flex items-center gap-3 p-4 border-b border-[#eee]">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${avatarBg(
+                  active.kind
+                )}`}
+              >
+                {active.kind === "project"
+                  ? "🏗️"
+                  : active.kind === "customer"
+                  ? "👤"
+                  : "🛡️"}
               </div>
-              <div>
-                <div className="msg-chat-title">{active.title}</div>
-                <div className="msg-chat-sub">{active.subtitle}</div>
+
+              <div className="flex-1">
+                <div className="font-bold">{active.title}</div>
+                <div className="text-sm text-gray-500">{active.subtitle}</div>
               </div>
-              <div className="msg-pill">{active.kind === "project" ? "Project" : active.kind === "customer" ? "Customer" : "Admin"}</div>
+
+              <button
+                onClick={() => setOpenAppt(true)}
+                className="border px-3 py-2 rounded-[10px] text-sm"
+              >
+                + Appointment
+              </button>
             </div>
 
-            <div className="msg-chat" ref={scrollerRef}>
+            <div
+              ref={scrollerRef}
+              className="flex-1 overflow-auto p-4 bg-[#fafafa]"
+            >
               {msgs.map((m) => (
-                <div key={m.id} className={`bubble-row ${m.sender === "me" ? "me" : "them"}`}>
-                  <div className={`bubble ${m.sender === "me" ? "me" : "them"}`}>
-                    <div className="bubble-label">{m.senderLabel}</div>
-                    <div className="bubble-text">{m.text}</div>
-                    <div className="bubble-time">{timeLabel(m.createdAt)}</div>
+                <div
+                  key={m.id}
+                  className={`flex mb-2 ${
+                    m.sender === "me" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[70%] rounded-[14px] p-3 text-sm ${
+                      m.sender === "me"
+                        ? "bg-[#b56c3f] text-white"
+                        : "bg-white border"
+                    }`}
+                  >
+                    <div className="text-xs opacity-80 mb-1">
+                      {m.senderLabel}
+                    </div>
+                    {m.text}
+                    <div className="text-[10px] opacity-70 text-right mt-1">
+                      {timeLabel(m.createdAt)}
+                    </div>
                   </div>
                 </div>
               ))}
-
-              {msgs.length === 0 ? (
-                <div className="msg-empty-chat">No messages yet. Say hi 👋</div>
-              ) : null}
             </div>
 
-            <div className="msg-input">
+            <div className="flex gap-2 p-3 border-t border-[#eee]">
               <input
-                className="msg-textbox"
+                className="flex-1 border rounded-full px-4 py-2"
                 placeholder="Type your message..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onSend();
-                }}
+                onKeyDown={(e) => e.key === "Enter" && onSend()}
               />
-              <button className="msg-send" onClick={onSend} type="button">
+              <button
+                onClick={onSend}
+                className="bg-[#b56c3f] text-white px-4 rounded-full"
+              >
                 Send
               </button>
             </div>
           </>
         )}
       </section>
+
+      {/* APPOINTMENT MODAL */}
+      {openAppt && (
+        <UploadModal title="Create Appointment" onClose={() => setOpenAppt(false)}>
+          <div className="grid gap-3">
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Appointment title"
+              value={appt.title}
+              onChange={(e) => setAppt((a) => ({ ...a, title: e.target.value }))}
+            />
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Location"
+              value={appt.location}
+              onChange={(e) =>
+                setAppt((a) => ({ ...a, location: e.target.value }))
+              }
+            />
+            <div className="flex gap-2">
+              <input
+                type="date"
+                className="border rounded px-3 py-2 flex-1"
+                value={appt.date}
+                onChange={(e) =>
+                  setAppt((a) => ({ ...a, date: e.target.value }))
+                }
+              />
+              <input
+                type="time"
+                className="border rounded px-3 py-2 flex-1"
+                value={appt.time}
+                onChange={(e) =>
+                  setAppt((a) => ({ ...a, time: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setOpenAppt(false)}
+                className="border px-3 py-2 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveAppointment}
+                className="bg-[#4b3f3a] text-white px-4 py-2 rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </UploadModal>
+      )}
     </div>
   );
 }
