@@ -2,7 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import CustomerLayout from "./layouts/CustomerLayout";
-
+import Navbar from "./components/common/Navbar";
+import Footer from "./components/common/Footer";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Gallery from "./pages/Gallery";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
@@ -20,11 +24,20 @@ function App() {
       {/* Toaster */}
       <Toaster position="top-center" />
 
+      {/* Navbar */}
+      <Navbar />
+
       <Routes>
-        {/* Auth */}
-        <Route path="/" element={<Login />} />
+         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/gallery" element={<Gallery />} />
+
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        
         {/* Customer layout */}
         <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<CustomerDashboard />} />
@@ -37,6 +50,9 @@ function App() {
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
+
+       {/* Footer */}
+      <Footer />
     </BrowserRouter>
   );
 }
