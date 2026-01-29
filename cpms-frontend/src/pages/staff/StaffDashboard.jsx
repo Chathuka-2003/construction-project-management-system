@@ -1,64 +1,55 @@
-
 import { useNavigate } from "react-router-dom";
-import "..app.css";
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
 
   return (
     <div>
-      <h2>Staff Dashboard</h2>
-      <p style={{ color: "#6f6f6f" }}>
-        Welcome back! Here's your daily overview
+      <h2 className="text-[22px] font-extrabold">Staff Dashboard</h2>
+      <p className="text-[#6f6f6f] text-[13px] mt-1">
+        Welcome back! Here&apos;s your daily overview
       </p>
 
-      <div className="grid" style={{ marginTop: 16 }}>
-        <div className="col-3">
-          <div
-            className="card clickable"
-            onClick={() => navigate("/projects")}
-            style={{ borderLeftColor: "#d28b5c" }}
-          >
-            <p className="card-title">Assigned Projects</p>
-            <p className="card-sub">Active projects</p>
-            <div className="big">2</div>
-          </div>
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        {/* Assigned Projects */}
+        <div
+          onClick={() => navigate("/projects")}
+          className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4 cursor-pointer border-l-[8px] border-l-[#d28b5c] hover:-translate-y-[2px] transition"
+        >
+          <p className="font-extrabold text-[16px]">Assigned Projects</p>
+          <p className="text-[#6f6f6f] text-[13px]">Active projects</p>
+          <div className="text-[34px] font-black mt-2">2</div>
         </div>
 
-        <div className="col-3">
-          <div
-            className="card clickable"
-            onClick={() => navigate("/tasks")}
-            style={{ borderLeftColor: "#27ae60" }}
-          >
-            <p className="card-title">Today's Tasks</p>
-            <p className="card-sub">Due today</p>
-            <div className="big">1</div>
-          </div>
+        {/* Today's Tasks */}
+        <div
+          onClick={() => navigate("/tasks")}
+          className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4 cursor-pointer border-l-[8px] border-l-[#27ae60] hover:-translate-y-[2px] transition"
+        >
+          <p className="font-extrabold text-[16px]">Today&apos;s Tasks</p>
+          <p className="text-[#6f6f6f] text-[13px]">Due today</p>
+          <div className="text-[34px] font-black mt-2">1</div>
         </div>
 
-        <div className="col-3">
-          <div
-            className="card clickable"
-            onClick={() => navigate("/tasks")}
-            style={{ borderLeftColor: "#c0392b" }}
-          >
-            <p className="card-title">Pending Tasks</p>
-            <p className="card-sub">Not completed</p>
-            <div className="big">1</div>
-          </div>
+        {/* Pending Tasks */}
+        <div
+          onClick={() => navigate("/tasks")}
+          className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4 cursor-pointer border-l-[8px] border-l-[#c0392b] hover:-translate-y-[2px] transition"
+        >
+          <p className="font-extrabold text-[16px]">Pending Tasks</p>
+          <p className="text-[#6f6f6f] text-[13px]">Not completed</p>
+          <div className="text-[34px] font-black mt-2">1</div>
         </div>
 
-        <div className="col-3">
-          <div
-            className="card clickable"
-            onClick={() => navigate("/appointments")}
-            style={{ borderLeftColor: "#2e86de" }}
-          >
-            <p className="card-title">Appointments</p>
-            <p className="card-sub">Upcoming</p>
-            <div className="big">2</div>
-          </div>
+        {/* Appointments */}
+        <div
+          onClick={() => navigate("/appointments")}
+          className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-4 cursor-pointer border-l-[8px] border-l-[#2e86de] hover:-translate-y-[2px] transition"
+        >
+          <p className="font-extrabold text-[16px]">Appointments</p>
+          <p className="text-[#6f6f6f] text-[13px]">Upcoming</p>
+          <div className="text-[34px] font-black mt-2">2</div>
         </div>
       </div>
     </div>
