@@ -1,10 +1,7 @@
+// src/pages/admin/AdminProfile.jsx
 import React, { useState } from "react";
-import DashboardLayout from "../../components/common/DashboardLayout";
 
 export default function AdminProfile() {
-  // -----------------------------
-  // State
-  // -----------------------------
   const [profileImage, setProfileImage] = useState(null);
 
   const [adminData, setAdminData] = useState({
@@ -22,14 +19,10 @@ export default function AdminProfile() {
     confirmPassword: "",
   });
 
-  // -----------------------------
   // Handlers
-  // -----------------------------
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setProfileImage(URL.createObjectURL(file));
-    }
+    if (file) setProfileImage(URL.createObjectURL(file));
   };
 
   const handleProfileChange = (e) => {
@@ -50,12 +43,10 @@ export default function AdminProfile() {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-
     console.log("Password changed");
     setShowPasswordForm(false);
     setPasswordData({
@@ -65,13 +56,10 @@ export default function AdminProfile() {
     });
   };
 
-  // -----------------------------
-  // UI
-  // -----------------------------
   return (
-    <DashboardLayout role="admin">
-      <div className="p-6 max-w-4xl">
-        <h1 className="text-2xl font-semibold mb-6">Admin Profile</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">Admin Profile</h1>
+
       <div className="bg-white rounded-xl shadow border p-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-6">
@@ -251,6 +239,5 @@ export default function AdminProfile() {
         )}
       </div>
     </div>
-    </DashboardLayout>
   );
 }
