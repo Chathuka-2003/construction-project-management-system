@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -15,122 +15,164 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-const sidebarItems = [
-  // ===== ADMIN =====
-  { label: "Overview", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
-  { label: "Project Dashboard", icon: FolderKanban, path: "/projects", roles: ["admin"] },
-  { label: "User Management", icon: Users, path: "/management", roles: ["admin"] },
+/**
+ * Normalize role from storage/back-end:
+ * ADMIN/SUPERADMIN -> "admin"
+ * everything else -> "staff"
+ */
+function normalizeRole(roleRaw) {
+  const r = String(roleRaw || "").toUpperCase();
+  if (r === "ADMIN" || r === "SUPERADMIN") return "admin";
+  return "staff";
+}
 
-  { label: "Overview", icon: LayoutDashboard, path: "/staff", roles: ["staff", "admin"] },
-  // ===== VEHICLE MANAGEMENT =====
+const NAV = [
+  // ================= ADMIN =================
+  { label: "Admin Overview", icon: LayoutDashboard, to: "/admin", roles: ["admin"] },
+  { label: "Worker Management", icon: Users, to: "/admin/workers", roles: ["admin"] },
+  { label: "Payments", icon: CreditCard, to: "/payment", roles: ["admin","staff"] },
+  { label: "Admin Profile", icon: User, to: "/admin/profile", roles: ["admin"] },
+
+  // ================= STAFF =================
+  { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff", "admin"] },
+  { label: "Dashboard", icon: LayoutDashboard, to: "/staff/dashboard", roles: ["staff", "admin"] },
+  { label: "Projects", icon: FolderKanban, to: "/staff/projects", roles: ["staff", "admin"] },
+  { label: "Tasks", icon: ClipboardList, to: "/staff/tasks", roles: ["staff", "admin"] },
+  { label: "Appointments", icon: Calendar, to: "/staff/appointments", roles: ["staff", "admin"] },
+  { label: "Messages", icon: MessageSquare, to: "/staff/messages", roles: ["staff", "admin"] },
+  { label: "Staff Profile", icon: User, to: "/staff/profile", roles: ["staff"] },
+
+  // ================= VEHICLE =================
   {
     label: "Vehicle Management",
     icon: Truck,
-    path: "/vehicle",
     roles: ["admin", "staff"],
     children: [
-      { label: "Vehicle Dashboard", path: "/vehicle", roles: ["admin",] },
-      { label: "Vehicle Assignment", path: "/assignment", roles: ["staff","admin"] },
-      { label: "Manage Vehicles", path: "/manage", roles: ["staff","admin"] },
+      { label: "Vehicle Dashboard", to: "/vehicle", roles: ["admin", "staff"] },
+      { label: "Vehicle Assignment", to: "/vehicle/assignment", roles: ["admin", "staff"] },
+      { label: "Manage Vehicles", to: "/vehicle/manage", roles: ["admin", "staff"] },
     ],
   },
 
-  { label: "Resource Management", icon: Boxes, path: "/allocation", roles: ["admin", "staff"] },
-  { label: "Appointments", icon: Calendar, path: "/appointments", roles: ["admin", "staff"] },
-  { label: "Messages", icon: MessageSquare, path: "/messages", roles: ["admin", "staff"] },
-  { label: "Payments", icon: CreditCard, path: "/payment", roles: ["admin"] },
-
-  // ===== STAFF =====
-  { label: "Project Dashboard", icon: FolderKanban, path: "/projects", roles: ["staff"] },
-  { label: "Tasks Management", icon: ClipboardList, path: "/worker", roles: ["staff"] },
-  { label: "User Management", icon: Users, path: "/management", roles: ["staff"] },
-
-  // ===== PROFILE =====
-  { label: "Profile", icon: User, path: "/aprofile", roles: ["admin"] },
-  { label: "Profile", icon: User, path: "/sprofile", roles: ["staff"] },
+  // ================= RESOURCE =================
+  { label: "Resource Management", icon: Boxes, to: "/allocation", roles: ["admin", "staff"] },
 ];
 
-export default function Sidebar({ role }) {
+function cx(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function Sidebar({ role: roleProp }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const role = useMemo(() => normalizeRole(roleProp || localStorage.getItem("role")), [roleProp]);
+
+  // Filter navigation by role (for both parent & children)
+  const items = useMemo(() => {
+    return NAV.filter((item) => item.roles?.includes(role)).map((item) => {
+      if (!item.children) return item;
+      const kids = item.children.filter((c) => c.roles?.includes(role));
+      return { ...item, children: kids };
+    });
+  }, [role]);
+
+  // Auto-open submenu if current route matches a child
   const [openMenu, setOpenMenu] = useState(null);
+
+  useEffect(() => {
+    const activeParent = items.find(
+      (it) =>
+        it.children?.length &&
+        it.children.some((c) => location.pathname.startsWith(c.to))
+    );
+    if (activeParent) setOpenMenu(activeParent.label);
+  }, [items, location.pathname]);
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   return (
-    <aside className="w-64 h-screen bg-slate-900 text-white flex flex-col">
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-slate-700">
-        <h1 className="text-lg font-semibold">Construction System</h1>
-        <p className="text-xs text-slate-400">
+    <aside className="flex h-screen w-64 flex-col bg-slate-900 text-white">
+      {/* Header */}
+      <div className="border-b border-slate-800 px-6 py-5">
+        <h1 className="text-lg font-semibold tracking-wide">Construction System</h1>
+        <p className="mt-1 text-xs text-slate-400">
           {role === "admin" ? "Admin Portal" : "Staff Portal"}
         </p>
       </div>
 
-      {/* Menu */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {sidebarItems
-          .filter(item => item.roles.includes(role))
-          .map((item, index) => {
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="space-y-1">
+          {items.map((item) => {
             const Icon = item.icon;
 
-            // 🔽 SUB MENU
-            if (item.children) {
+            // Submenu
+            if (item.children?.length) {
+              const isOpen = openMenu === item.label;
+              const hasActiveChild = item.children.some((c) =>
+                location.pathname.startsWith(c.to)
+              );
+
               return (
-                <div key={index}>
+                <div key={item.label} className="select-none">
                   <button
-                    onClick={() =>
-                      setOpenMenu(openMenu === item.label ? null : item.label)
-                    }
-                    className="w-full flex items-center justify-between px-4 py-2
-                               text-slate-300 hover:bg-slate-800 rounded-md"
+                    type="button"
+                    onClick={() => setOpenMenu(isOpen ? null : item.label)}
+                    className={cx(
+                      "flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition",
+                      hasActiveChild ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800"
+                    )}
+                    aria-expanded={isOpen}
+                    aria-controls={`submenu-${item.label}`}
                   >
                     <div className="flex items-center gap-3">
                       <Icon size={18} />
-                      {item.label}
+                      <span className="font-medium">{item.label}</span>
                     </div>
                     <ChevronDown
                       size={16}
-                      className={`${openMenu === item.label ? "rotate-180" : ""} transition`}
+                      className={cx("transition-transform", isOpen ? "rotate-180" : "rotate-0")}
                     />
                   </button>
 
-                  {openMenu === item.label && (
-                    <div className="ml-8 mt-1 space-y-1">
-                      {item.children
-                        .filter(sub => sub.roles.includes(role))
-                        .map((sub, i) => (
-                          <NavLink
-                            key={i}
-                            to={sub.path}
-                            className={({ isActive }) =>
-                              `block px-3 py-2 text-sm rounded-md
-                              ${isActive
+                  {isOpen && (
+                    <div id={`submenu-${item.label}`} className="ml-4 mt-1 space-y-1 border-l border-slate-800 pl-3">
+                      {item.children.map((sub) => (
+                        <NavLink
+                          key={sub.to}
+                          to={sub.to}
+                          className={({ isActive }) =>
+                            cx(
+                              "block rounded-xl px-3 py-2 text-sm transition",
+                              isActive
                                 ? "bg-blue-600 text-white"
-                                : "text-slate-400 hover:bg-slate-800"}`
-                            }
-                          >
-                            {sub.label}
-                          </NavLink>
-                        ))}
+                                : "text-slate-300 hover:bg-slate-800"
+                            )
+                          }
+                        >
+                          {sub.label}
+                        </NavLink>
+                      ))}
                     </div>
                   )}
                 </div>
               );
             }
 
-            // 🔹 NORMAL ITEM
+            // Normal link
             return (
               <NavLink
-                key={index}
-                to={item.path}
+                key={item.to}
+                to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2 rounded-md text-sm
-                  ${isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800"}`
+                  cx(
+                    "flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-medium transition",
+                    isActive ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                  )
                 }
               >
                 <Icon size={18} />
@@ -138,20 +180,20 @@ export default function Sidebar({ role }) {
               </NavLink>
             );
           })}
+        </div>
       </nav>
 
-      {/* Logout */}
-      <div className="px-3 py-4 border-t border-slate-700">
+      {/* Footer */}
+      <div className="border-t border-slate-800 p-3">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2
-                     text-sm text-red-400 hover:bg-slate-800 rounded-md"
+          type="button"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-slate-800"
         >
           <LogOut size={18} />
           Logout
         </button>
       </div>
-      
     </aside>
   );
 }
