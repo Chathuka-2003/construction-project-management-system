@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DashboardLayout from '../../components/common/DashboardLayout';
+
 import {
   Leaf,
   Droplet,
@@ -239,7 +239,7 @@ const AllocationDashboard = () => {
      Render (Sidebar handled by DashboardLayout)
   ======================= */
   return (
-    <DashboardLayout role={role}>
+    
       <div className="p-6">
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -300,7 +300,7 @@ const AllocationDashboard = () => {
           <SustainabilityInsights />
         </div>
       </div>
-    </DashboardLayout>
+   
   );
 };
 
