@@ -31,11 +31,12 @@ const NAV = [
   // ================= ADMIN =================
   { label: "Admin Overview", icon: LayoutDashboard, to: "/admin", roles: ["admin"] },
   { label: "Worker Management", icon: Users, to: "/admin/workers", roles: ["admin"] },
+   { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff"] },
   { label: "Payments", icon: CreditCard, to: (role) => (role === "admin" ? "/admin/payment" : "/staff/payment"), roles: ["admin","staff"] },
   { label: "Admin Profile", icon: User, to: "/admin/profile", roles: ["admin"] },
 
   // ================= STAFF =================
-  { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff"] },
+ 
 
   {
     label: "Projects",
@@ -50,8 +51,7 @@ const NAV = [
   { label: "Tasks", icon: ClipboardList, to: (role) => (role === "admin" ? "/admin/tasks" : "/staff/tasks"), roles: ["admin","staff"] },
    { label: "Appointments", icon: Calendar, to: (role) => (role === "admin" ? "/admin/appointments" : "/staff/appointments"), roles: ["admin","staff"] },
     { label: "messages", icon: MessageSquare, to: (role) => (role === "admin" ? "/admin/messages" : "/staff/messages"), roles: ["admin","staff"] },
-  { label: "Staff Profile", icon: User, to: "/staff/profile", roles: ["staff"] },
-
+ 
   // ================= VEHICLE =================
   {
     label: "Vehicle Management",
@@ -66,6 +66,8 @@ const NAV = [
 
   // ================= RESOURCE =================
    { label: "Resource Allocation", icon: Boxes, to: (role) => (role === "admin" ? "/admin/allocation" : "/staff/allocation"), roles: ["admin","staff"] },
+    { label: "Staff Profile", icon: User, to: "/staff/profile", roles: ["staff"] },
+
 ];
 
 function cx(...classes) {
