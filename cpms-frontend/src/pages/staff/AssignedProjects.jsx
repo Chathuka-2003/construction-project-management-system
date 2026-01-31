@@ -1,9 +1,16 @@
 import { useMemo, useState } from "react";
-import { useStore } from "../store/AppStore.jsx";
-import UploadModal from "../components/modals/UploadModal.jsx";
-import ConfirmDialog from "../components/modals/ConfirmDialog.jsx";
+import { useStore } from "../../components/store/AppStore.jsx";
+import UploadModal from "../../components/modals/UploadModal.jsx";
+import ConfirmDialog from "../../components/modals/ConfirmDialog.jsx";
 
-const STATUSES = ["Planning", "Design", "Construction", "Finishing", "Handover", "On Hold"];
+const STATUSES = [
+  "Planning",
+  "Design",
+  "Construction",
+  "Finishing",
+  "Handover",
+  "On Hold",
+];
 
 function emptyForm() {
   return {
@@ -20,26 +27,27 @@ export default function AssignedProjects() {
   const { data, addProject, updateProject, deleteProject } = useStore();
 
   const [q, setQ] = useState("");
-  const [sort, setSort] = useState("new"); // new or old
+  const [sort, setSort] = useState("new");
   const [openForm, setOpenForm] = useState(false);
-  const [editing, setEditing] = useState(null); // project object or null
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm());
-  const [confirm, setConfirm] = useState(null); // project id to delete
+  const [confirm, setConfirm] = useState(null);
 
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    let list = [...data.projects];
+  const projects = useMemo(() => {
+    let list = [...(data.projects || [])];
 
-    if (needle) {
-      list = list.filter(p =>
-        (p.name || "").toLowerCase().includes(needle) ||
-        (p.location || "").toLowerCase().includes(needle)
+    if (q.trim()) {
+      const needle = q.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(needle) ||
+          p.location.toLowerCase().includes(needle)
       );
     }
 
     list.sort((a, b) => {
-      const da = new Date(a.startDate || "1970-01-01").getTime();
-      const db = new Date(b.startDate || "1970-01-01").getTime();
+      const da = new Date(a.startDate || 0);
+      const db = new Date(b.startDate || 0);
       return sort === "new" ? db - da : da - db;
     });
 
@@ -66,122 +74,203 @@ export default function AssignedProjects() {
   };
 
   const save = () => {
-    if (!form.name.trim()) return alert("Project name is required");
-    if (!form.location.trim()) return alert("Location is required");
-    if (!form.startDate) return alert("Starting date is required");
+    if (!form.name.trim()) return alert("Project name required");
+    if (!form.location.trim()) return alert("Location required");
+    if (!form.startDate) return alert("Start date required");
 
-    if (editing) updateProject(editing.id, form);
-    else addProject(form);
+    if (editing) {
+      updateProject(editing.id, form);
+    } else {
+      addProject(form);
+    }
 
     setOpenForm(false);
   };
 
   return (
-    <div className="card">
-      <div className="row" style={{ justifyContent: "space-between" }}>
+    <div className="bg-white rounded-[14px] shadow p-4">
+      {/* Header */}
+      <div className="flex justify-between items-start gap-3 flex-wrap">
         <div>
-          <h2 style={{ margin: "0 0 6px 0" }}>Projects</h2>
-          <div className="card-sub">Search by project name or location • Sort by date</div>
+          <h2 className="text-[22px] font-extrabold">Assigned Projects</h2>
+          <p className="text-[13px] text-gray-500 mt-1">
+            Manage your assigned construction projects
+          </p>
         </div>
-        <button className="btn primary" onClick={startAdd}>+ New Project</button>
+
+        <button
+          onClick={startAdd}
+          className="bg-[#4b3f3a] text-white font-bold px-3 py-2 rounded-[10px]"
+        >
+          + New Project
+        </button>
       </div>
 
-      <div className="hr" />
+      <div className="h-px bg-[#eee] my-3" />
 
-      <div className="row">
+      {/* Controls */}
+      <div className="flex gap-2 flex-wrap">
         <input
-          className="input"
+          className="border rounded-[10px] px-3 py-2 min-w-[220px]"
           placeholder="Search by name or location..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
 
-        <select className="select" value={sort} onChange={(e) => setSort(e.target.value)}>
+        <select
+          className="border rounded-[10px] px-3 py-2 min-w-[220px]"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
           <option value="new">Date: New → Old</option>
           <option value="old">Date: Old → New</option>
         </select>
       </div>
 
-      <div className="hr" />
+      <div className="h-px bg-[#eee] my-3" />
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Project</th>
-            <th>Customer</th>
-            <th>Location</th>
-            <th>Start</th>
-            <th>Status</th>
-            <th style={{ width: 160 }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((p) => (
-            <tr key={p.id}>
-              <td>
-                <b>{p.name}</b>
-                <div className="card-sub">{p.description}</div>
-              </td>
-              <td>{p.customer}</td>
-              <td>{p.location}</td>
-              <td>{p.startDate}</td>
-              <td>
-                <span className="pill">{p.status}</span>
-              </td>
-              <td>
-                <div className="row">
-                  <button className="btn ghost small" onClick={() => startEdit(p)}>Edit</button>
-                  <button className="btn danger small" onClick={() => setConfirm(p.id)}>Delete</button>
-                </div>
-              </td>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-2">Project</th>
+              <th className="text-left p-2">Customer</th>
+              <th className="text-left p-2">Location</th>
+              <th className="text-left p-2">Start</th>
+              <th className="text-left p-2">Status</th>
+              <th className="text-left p-2 w-[160px]">Actions</th>
             </tr>
-          ))}
-          {filtered.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="card-sub" style={{ padding: 14 }}>
-                No projects found.
-              </td>
-            </tr>
-          ) : null}
-        </tbody>
-      </table>
+          </thead>
 
-      {openForm ? (
-        <UploadModal title={editing ? "Edit Project" : "New Project"} onClose={() => setOpenForm(false)}>
-          <div className="row">
-            <input className="input" placeholder="Project name"
-              value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} />
-            <input className="input" placeholder="Customer name"
-              value={form.customer} onChange={(e) => setForm(f => ({ ...f, customer: e.target.value }))} />
-          </div>
+          <tbody>
+            {projects.map((p) => (
+              <tr key={p.id} className="border-b">
+                <td className="p-2">
+                  <b>{p.name}</b>
+                  {p.description && (
+                    <div className="text-[13px] text-gray-500">
+                      {p.description}
+                    </div>
+                  )}
+                </td>
+                <td className="p-2">{p.customer}</td>
+                <td className="p-2">{p.location}</td>
+                <td className="p-2">{p.startDate}</td>
+                <td className="p-2">
+                  <span className="px-3 py-1 rounded-full text-[12px] bg-gray-100 font-bold">
+                    {p.status}
+                  </span>
+                </td>
+                <td className="p-2">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => startEdit(p)}
+                      className="border rounded-[10px] px-3 py-1 text-[13px] font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setConfirm(p.id)}
+                      className="bg-[#c0392b] text-white rounded-[10px] px-3 py-1 text-[13px] font-bold"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
 
-          <div className="row" style={{ marginTop: 10 }}>
-            <input className="input" placeholder="Location"
-              value={form.location} onChange={(e) => setForm(f => ({ ...f, location: e.target.value }))} />
-            <input className="input" type="date"
-              value={form.startDate} onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))} />
-          </div>
+            {projects.length === 0 && (
+              <tr>
+                <td colSpan={6} className="p-4 text-gray-500 text-sm">
+                  No projects found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          <div className="row" style={{ marginTop: 10 }}>
-            <select className="select" value={form.status}
-              onChange={(e) => setForm(f => ({ ...f, status: e.target.value }))}>
-              {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+      {/* Add / Edit Modal */}
+      {openForm && (
+        <UploadModal
+          title={editing ? "Edit Project" : "New Project"}
+          onClose={() => setOpenForm(false)}
+        >
+          <div className="grid gap-3">
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Project name"
+              value={form.name}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, name: e.target.value }))
+              }
+            />
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Customer"
+              value={form.customer}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, customer: e.target.value }))
+              }
+            />
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Location"
+              value={form.location}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, location: e.target.value }))
+              }
+            />
+            <input
+              type="date"
+              className="border rounded px-3 py-2"
+              value={form.startDate}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, startDate: e.target.value }))
+              }
+            />
+            <select
+              className="border rounded px-3 py-2"
+              value={form.status}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, status: e.target.value }))
+              }
+            >
+              {STATUSES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
             </select>
-          </div>
+            <textarea
+              className="border rounded px-3 py-2"
+              placeholder="Description"
+              value={form.description}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
+            />
 
-          <div style={{ marginTop: 10 }}>
-            <textarea className="textarea" placeholder="Description"
-              value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} />
-          </div>
-
-          <div className="row" style={{ justifyContent: "flex-end", marginTop: 10 }}>
-            <button className="btn ghost" onClick={() => setOpenForm(false)}>Cancel</button>
-            <button className="btn primary" onClick={save}>Save</button>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setOpenForm(false)}
+                className="border rounded px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={save}
+                className="bg-[#4b3f3a] text-white rounded px-4 py-2"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </UploadModal>
-      ) : null}
+      )}
 
-      {confirm ? (
+      {/* Delete Confirm */}
+      {confirm && (
         <ConfirmDialog
           message="Are you sure you want to delete this project?"
           onNo={() => setConfirm(null)}
@@ -190,7 +279,7 @@ export default function AssignedProjects() {
             setConfirm(null);
           }}
         />
-      ) : null}
+      )}
     </div>
   );
 }

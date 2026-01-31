@@ -1,22 +1,17 @@
-import "..app.css";
+export default function Footer() {
+  const year = new Date().getFullYear();
 
-export default function Card({ title, subtitle, right, accentColor, onClick, children }) {
   return (
-    <div
-      className={`card ${onClick ? "clickable" : ""}`}
-      onClick={onClick}
-      style={accentColor ? { borderLeft: `8px solid ${accentColor}` } : undefined}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <div>
-          <p className="card-title">{title}</p>
-          {subtitle ? <p className="card-sub">{subtitle}</p> : null}
-        </div>
-        {right ? <div>{right}</div> : null}
+    <footer className="w-full border-t border-slate-200 bg-white px-6 py-3">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
+        <p>
+          © {year} Construction Management System
+        </p>
+
+        <p className="text-xs text-slate-400">
+          Built for Admin & Staff Operations
+        </p>
       </div>
-      {children}
-    </div>
+    </footer>
   );
 }

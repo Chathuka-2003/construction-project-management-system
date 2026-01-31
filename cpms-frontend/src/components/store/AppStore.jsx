@@ -1,9 +1,16 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+// src/components/store/AppStore.jsx
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const StoreContext = createContext(null);
 const LS_KEY = "ecobuild_frontend_store_v1";
 
-const todayISO = () => {
+export const todayISO = () => {
   const d = new Date();
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -46,6 +53,7 @@ const seed = () => {
         assignedWorker: "Kasun",
         role: "Supervisor",
         status: "In Progress",
+        vehicleNumber: "LK-CAA-2145",
       },
       {
         id: 2,
@@ -56,27 +64,51 @@ const seed = () => {
         assignedWorker: "Nimal",
         role: "Procurement",
         status: "Not Started",
+        vehicleNumber: "LK-WP-5632",
       },
     ],
 
     appointments: [
-      { id: 1, title: "Client Meeting - Project Review", dateTime: "2026-01-16T15:00", location: "Conference Room A" },
-      { id: 2, title: "Site Visit - Foundation Inspection", dateTime: "2026-01-17T10:00", location: "Riverside Site" },
+      {
+        id: 1,
+        title: "Client Meeting - Project Review",
+        dateTime: "2026-01-16T15:00",
+        location: "Conference Room A",
+      },
+      {
+        id: 2,
+        title: "Site Visit - Foundation Inspection",
+        dateTime: "2026-01-17T10:00",
+        location: "Riverside Site",
+      },
     ],
 
-    // ✅ Keep this as "notifications" (badge etc.)
     messages: [
-      { id: 1, text: "New task assigned: Review architectural plans", createdAt: new Date().toISOString(), read: false },
-      { id: 2, text: "Meeting scheduled for tomorrow 2:00 PM", createdAt: new Date(Date.now() - 3600 * 1000).toISOString(), read: false },
-      { id: 3, text: "Task completed: Material inspection approved", createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(), read: true },
+      {
+        id: 1,
+        text: "New task assigned: Review architectural plans",
+        createdAt: new Date().toISOString(),
+        read: false,
+      },
+      {
+        id: 2,
+        text: "Meeting scheduled for tomorrow 2:00 PM",
+        createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
+        read: false,
+      },
+      {
+        id: 3,
+        text: "Task completed: Material inspection approved",
+        createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
+        read: true,
+      },
     ],
 
-    // ✅ NEW: Conversations list (left panel)
     conversations: [
       {
         id: 1,
         title: "Riverside Apartments Project",
-        kind: "project", // project | customer | admin
+        kind: "project",
         subtitle: "Active now",
         unread: 2,
         lastMessageAt: new Date(now - 10 * 60 * 1000).toISOString(),
@@ -99,12 +131,11 @@ const seed = () => {
       },
     ],
 
-    // ✅ NEW: Chat messages (right panel)
     chatMessages: [
       {
         id: 101,
         conversationId: 1,
-        sender: "them", // them | me
+        sender: "them",
         senderLabel: "Project Team",
         text: "Good morning! The foundation work is progressing well.",
         createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
@@ -169,7 +200,6 @@ export function AppStoreProvider({ children }) {
   }, [data]);
 
   const api = useMemo(() => {
-    // Projects
     const addProject = (p) =>
       setData((d) => ({
         ...d,
@@ -185,7 +215,6 @@ export function AppStoreProvider({ children }) {
     const deleteProject = (id) =>
       setData((d) => ({ ...d, projects: d.projects.filter((p) => p.id !== id) }));
 
-    // Tasks
     const addTask = (t) =>
       setData((d) => ({
         ...d,
@@ -200,7 +229,7 @@ export function AppStoreProvider({ children }) {
 
     const deleteTask = (id) =>
       setData((d) => ({ ...d, tasks: d.tasks.filter((t) => t.id !== id) }));
-    // Appointments
+
     const addAppointment = (a) =>
       setData((d) => ({
         ...d,
@@ -210,13 +239,17 @@ export function AppStoreProvider({ children }) {
     const updateAppointment = (id, patch) =>
       setData((d) => ({
         ...d,
-        appointments: d.appointments.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+        appointments: d.appointments.map((a) =>
+          a.id === id ? { ...a, ...patch } : a
+        ),
       }));
 
     const deleteAppointment = (id) =>
-      setData((d) => ({ ...d, appointments: d.appointments.filter((a) => a.id !== id) }));
+      setData((d) => ({
+        ...d,
+        appointments: d.appointments.filter((a) => a.id !== id),
+      }));
 
-    // Notifications (existing)
     const markMessageRead = (id) =>
       setData((d) => ({
         ...d,
@@ -224,13 +257,14 @@ export function AppStoreProvider({ children }) {
       }));
 
     const markAllMessagesRead = () =>
-      setData((d) => ({ ...d, messages: d.messages.map((m) => ({ ...m, read: true })) }));
+      setData((d) => ({
+        ...d,
+        messages: d.messages.map((m) => ({ ...m, read: true })),
+      }));
 
-    // ✅ Chat: send + mark read
     const sendMessage = (conversationId, text) =>
       setData((d) => {
         const now = new Date().toISOString();
-
         return {
           ...d,
           chatMessages: [
@@ -245,9 +279,7 @@ export function AppStoreProvider({ children }) {
             },
           ],
           conversations: (d.conversations || []).map((c) =>
-            c.id === conversationId
-              ? { ...c, subtitle: text, lastMessageAt: now }
-              : c
+            c.id === conversationId ? { ...c, subtitle: text, lastMessageAt: now } : c
           ),
         };
       });
@@ -255,53 +287,39 @@ export function AppStoreProvider({ children }) {
     const markConversationRead = (conversationId) =>
       setData((d) => {
         let changed = false;
-
         const conversations = (d.conversations || []).map((c) => {
           if (c.id === conversationId && c.unread !== 0) {
             changed = true;
             return { ...c, unread: 0 };
-        }
-        return c;
+          }
+          return c;
         });
+        return changed ? { ...d, conversations } : d;
+      });
 
-    // 🔒 If nothing changed, return SAME state object
-    return changed ? { ...d, conversations } : d;
-     });
-
-    // Profile
     const updateProfile = (patch) =>
       setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }));
 
-    // Tasks view
     const setTasksView = (view) => setData((d) => ({ ...d, tasksView: view }));
 
     return {
       data,
-
       addProject,
       updateProject,
       deleteProject,
-
       addTask,
       updateTask,
       deleteTask,
-
-      // notifications
-      markMessageRead,
-      markAllMessagesRead,
-
-      // chat
-      sendMessage,
-      markConversationRead,
-
-      updateProfile,
-      setTasksView,
-      todayISO,
-
       addAppointment,
       updateAppointment,
       deleteAppointment,
-
+      markMessageRead,
+      markAllMessagesRead,
+      sendMessage,
+      markConversationRead,
+      updateProfile,
+      setTasksView,
+      todayISO,
     };
   }, [data]);
 
