@@ -12,6 +12,19 @@ import AdminLayout from "./layouts/AdminLayout";
 import StaffLayout from "./layouts/StaffLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
+import AssignedProjects from "./pages/staff/AssignedProjects";
+import StaffDashboard from "./pages/staff/StaffDashboard";
+import TaskManagement from "./pages/staff/TaskManagement";
+import StaffAppointments from "./pages/staff/StaffAppointment";
+import Messages from "./pages/staff/Messages";
+
+import VehicleDashboard from "./pages/vehicle/VehicleDashboard";
+import VehicleAssignment from "./pages/vehicle/VehicleAssignments";
+import ManageVehicles from "./pages/vehicle/ManageVehicles";
+
+import AllocationDashboard from "./pages/allocation/AllocationDashboard";
+import WorkerManagementDashboard from "./pages/admin/WorkerManagementDashboard";
+
 function App() {
   return (
     <Router>
@@ -27,7 +40,16 @@ function App() {
             <Route path="overview" element={<AdminOverview />} />        {/* relative */}
             <Route path="payment" element={<PaymentsDashboard />} />     {/* relative */}
             <Route path="profile" element={<AdminProfile />} />          {/* relative */}
-
+            <Route path="projects" element={<AssignedProjects />} />      {/* relative */}
+            <Route path="dashboard" element={<StaffDashboard />} />        {/* relative */}
+            <Route path="tasks" element={<TaskManagement />} />        {/* relative */}
+            <Route path="appointments" element={<StaffAppointments />} />        {/* relative */}
+            <Route path="messages" element={<Messages />} />        {/* relative */}
+            <Route path="vehicle" element={<VehicleDashboard />} />        {/* relative */}
+            <Route path="vehicle/assignment" element={<VehicleAssignment />} />        {/* relative */}
+            <Route path="manage" element={<ManageVehicles />} />        {/* relative */}
+            <Route path="allocation" element={<AllocationDashboard />} />        {/* relative */}
+            <Route path="workers" element={<WorkerManagementDashboard />} />        {/* relative */}
           </Route>
         </Route>
 
@@ -37,6 +59,16 @@ function App() {
             <Route index element={<Navigate to="overview" replace />} /> {/* /staff -> /staff/overview */}
             <Route path="overview" element={<StaffOverview />} />        {/* relative */}
             <Route path="payment" element={<PaymentsDashboard />} />     {/* relative */}
+            <Route path="projects" element={<AssignedProjects />} />      {/* relative */}
+            <Route path="dashboard" element={<StaffDashboard />} />        {/* relative */}
+            <Route path="tasks" element={<TaskManagement />} />        {/* relative */}
+            <Route path="appointments" element={<StaffAppointments />} />        {/* relative */}
+            <Route path="messages" element={<Messages />} />        {/* relative */}
+            <Route path="vehicle" element={<VehicleDashboard />} />        {/* relative */}
+            <Route path="vehicle/assignment" element={<VehicleAssignment />} />        {/* relative */}
+            <Route path="allocation" element={<AllocationDashboard />} />        {/* relative */}
+
+
           </Route>
         </Route>
       </Routes>
