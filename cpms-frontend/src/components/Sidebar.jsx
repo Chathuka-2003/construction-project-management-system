@@ -30,12 +30,12 @@ const NAV = [
   // ================= ADMIN =================
   { label: "Admin Overview", icon: LayoutDashboard, to: "/admin", roles: ["admin"] },
   { label: "Worker Management", icon: Users, to: "/admin/workers", roles: ["admin"] },
-  { label: "Payments", icon: CreditCard, to: "/payment", roles: ["admin","staff"] },
+  { label: "Payments", icon: CreditCard, to: (role) => (role === "admin" ? "/admin/payment" : "/staff/payment"), roles: ["admin","staff"] },
   { label: "Admin Profile", icon: User, to: "/admin/profile", roles: ["admin"] },
 
   // ================= STAFF =================
-  { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff", "admin"] },
-  { label: "Dashboard", icon: LayoutDashboard, to: "/staff/dashboard", roles: ["staff", "admin"] },
+  { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff"] },
+  { label: "User Management", icon: LayoutDashboard, to: "/staff/dashboard", roles: ["staff", "admin"] },
   { label: "Projects", icon: FolderKanban, to: "/staff/projects", roles: ["staff", "admin"] },
   { label: "Tasks", icon: ClipboardList, to: "/staff/tasks", roles: ["staff", "admin"] },
   { label: "Appointments", icon: Calendar, to: "/staff/appointments", roles: ["staff", "admin"] },
@@ -84,10 +84,10 @@ export default function Sidebar({ role: roleProp }) {
     const activeParent = items.find(
       (it) =>
         it.children?.length &&
-        it.children.some((c) => location.pathname.startsWith(c.to))
+        it.children.some((c) => location.pathname.startsWith(typeof c.to === "function" ? c.to(role) : c.to))
     );
     if (activeParent) setOpenMenu(activeParent.label);
-  }, [items, location.pathname]);
+  }, [items, location.pathname, role]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -114,7 +114,7 @@ export default function Sidebar({ role: roleProp }) {
             if (item.children?.length) {
               const isOpen = openMenu === item.label;
               const hasActiveChild = item.children.some((c) =>
-                location.pathname.startsWith(c.to)
+                location.pathname.startsWith(typeof c.to === "function" ? c.to(role) : c.to)
               );
 
               return (
@@ -144,7 +144,7 @@ export default function Sidebar({ role: roleProp }) {
                       {item.children.map((sub) => (
                         <NavLink
                           key={sub.to}
-                          to={sub.to}
+                          to={typeof sub.to === "function" ? sub.to(role) : sub.to}
                           className={({ isActive }) =>
                             cx(
                               "block rounded-xl px-3 py-2 text-sm transition",
@@ -167,7 +167,7 @@ export default function Sidebar({ role: roleProp }) {
             return (
               <NavLink
                 key={item.to}
-                to={item.to}
+                to={typeof item.to === "function" ? item.to(role) : item.to}
                 className={({ isActive }) =>
                   cx(
                     "flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-medium transition",
