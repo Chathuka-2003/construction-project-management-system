@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
+import AddUserform from "./pages/forms/AddUserform";
+import AddWorkerform from "./pages/forms/AddWorkerform";
 
 import Login from "./pages/auth/Login";
 import Unauthorized from "./pages/auth/Unauthorized";
@@ -17,6 +19,7 @@ import StaffDashboard from "./pages/staff/StaffDashboard";
 import TaskManagement from "./pages/staff/TaskManagement";
 import StaffAppointments from "./pages/staff/StaffAppointment";
 import Messages from "./pages/staff/Messages";
+import StaffProfile from "./pages/staff/StaffProfile";
 
 import VehicleDashboard from "./pages/vehicle/VehicleDashboard";
 import VehicleAssignment from "./pages/vehicle/VehicleAssignments";
@@ -50,6 +53,8 @@ function App() {
             <Route path="manage" element={<ManageVehicles />} />        {/* relative */}
             <Route path="allocation" element={<AllocationDashboard />} />        {/* relative */}
             <Route path="workers" element={<WorkerManagementDashboard />} />        {/* relative */}
+            <Route path="add-worker" element={<AddWorkerform />} />        {/* relative */}
+            <Route path="add-user" element={<AddUserform />} />        {/* relative */}
           </Route>
         </Route>
 
@@ -67,6 +72,10 @@ function App() {
             <Route path="vehicle" element={<VehicleDashboard />} />        {/* relative */}
             <Route path="vehicle/assignment" element={<VehicleAssignment />} />        {/* relative */}
             <Route path="allocation" element={<AllocationDashboard />} />        {/* relative */}
+            <Route path="profile" element={<StaffProfile />} />          {/* relative */}
+            <Route path="add-worker" element={<AddWorkerform />} />        {/* relative */}
+            <Route path="add-user" element={<AddUserform />} />        {/* relative */}
+
 
 
           </Route>
