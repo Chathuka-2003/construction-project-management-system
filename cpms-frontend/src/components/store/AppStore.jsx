@@ -1,3 +1,4 @@
+// src/components/store/AppStore.jsx
 import React, {
   createContext,
   useContext,
@@ -52,6 +53,7 @@ const seed = () => {
         assignedWorker: "Kasun",
         role: "Supervisor",
         status: "In Progress",
+        vehicleNumber: "LK-CAA-2145",
       },
       {
         id: 2,
@@ -62,6 +64,7 @@ const seed = () => {
         assignedWorker: "Nimal",
         role: "Procurement",
         status: "Not Started",
+        vehicleNumber: "LK-WP-5632",
       },
     ],
 
@@ -80,7 +83,6 @@ const seed = () => {
       },
     ],
 
-    // notifications
     messages: [
       {
         id: 1,
@@ -102,12 +104,11 @@ const seed = () => {
       },
     ],
 
-    // conversations list
     conversations: [
       {
         id: 1,
         title: "Riverside Apartments Project",
-        kind: "project", // project | customer | admin
+        kind: "project",
         subtitle: "Active now",
         unread: 2,
         lastMessageAt: new Date(now - 10 * 60 * 1000).toISOString(),
@@ -130,12 +131,11 @@ const seed = () => {
       },
     ],
 
-    // chat messages
     chatMessages: [
       {
         id: 101,
         conversationId: 1,
-        sender: "them", // them | me
+        sender: "them",
         senderLabel: "Project Team",
         text: "Good morning! The foundation work is progressing well.",
         createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
@@ -200,7 +200,6 @@ export function AppStoreProvider({ children }) {
   }, [data]);
 
   const api = useMemo(() => {
-    // Projects
     const addProject = (p) =>
       setData((d) => ({
         ...d,
@@ -216,7 +215,6 @@ export function AppStoreProvider({ children }) {
     const deleteProject = (id) =>
       setData((d) => ({ ...d, projects: d.projects.filter((p) => p.id !== id) }));
 
-    // Tasks
     const addTask = (t) =>
       setData((d) => ({
         ...d,
@@ -232,7 +230,6 @@ export function AppStoreProvider({ children }) {
     const deleteTask = (id) =>
       setData((d) => ({ ...d, tasks: d.tasks.filter((t) => t.id !== id) }));
 
-    // Appointments
     const addAppointment = (a) =>
       setData((d) => ({
         ...d,
@@ -253,7 +250,6 @@ export function AppStoreProvider({ children }) {
         appointments: d.appointments.filter((a) => a.id !== id),
       }));
 
-    // Notifications
     const markMessageRead = (id) =>
       setData((d) => ({
         ...d,
@@ -266,11 +262,9 @@ export function AppStoreProvider({ children }) {
         messages: d.messages.map((m) => ({ ...m, read: true })),
       }));
 
-    // Chat
     const sendMessage = (conversationId, text) =>
       setData((d) => {
         const now = new Date().toISOString();
-
         return {
           ...d,
           chatMessages: [
@@ -293,7 +287,6 @@ export function AppStoreProvider({ children }) {
     const markConversationRead = (conversationId) =>
       setData((d) => {
         let changed = false;
-
         const conversations = (d.conversations || []).map((c) => {
           if (c.id === conversationId && c.unread !== 0) {
             changed = true;
@@ -301,40 +294,29 @@ export function AppStoreProvider({ children }) {
           }
           return c;
         });
-
         return changed ? { ...d, conversations } : d;
       });
 
-    // Profile
     const updateProfile = (patch) =>
       setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }));
 
-    // Tasks view
     const setTasksView = (view) => setData((d) => ({ ...d, tasksView: view }));
 
     return {
       data,
-
       addProject,
       updateProject,
       deleteProject,
-
       addTask,
       updateTask,
       deleteTask,
-
       addAppointment,
       updateAppointment,
       deleteAppointment,
-
-      // notifications
       markMessageRead,
       markAllMessagesRead,
-
-      // chat
       sendMessage,
       markConversationRead,
-
       updateProfile,
       setTasksView,
       todayISO,

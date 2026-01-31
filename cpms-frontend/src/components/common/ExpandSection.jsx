@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-export default function ExpandSection({ title, count, defaultOpen = false, children }) {
+export default function ExpandSection({
+  title,
+  count = 0,
+  defaultOpen = false,
+  children,
+}) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
@@ -9,24 +14,26 @@ export default function ExpandSection({ title, count, defaultOpen = false, child
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-2 cursor-pointer select-none text-left"
+        className="w-full flex items-center justify-between text-left cursor-pointer"
         aria-expanded={open}
       >
-        <div>
-          <b className="text-[14px]">{title}</b>
-          <span className="text-[#6f6f6f] text-[13px]"> ({count})</span>
+        <div className="flex items-center gap-2">
+          <h3 className="font-extrabold text-[15px]">{title}</h3>
+          <span className="text-[12px] text-[#6f6f6f]">({count})</span>
         </div>
 
-        <span className="text-[18px]">{open ? "▾" : "▸"}</span>
+        <span className="text-[18px] select-none">
+          {open ? "▾" : "▸"}
+        </span>
       </button>
 
       {/* Content */}
-      {open ? (
+      {open && (
         <>
           <div className="h-px bg-[#eee] my-3" />
-          {children}
+          <div>{children}</div>
         </>
-      ) : null}
+      )}
     </div>
   );
 }

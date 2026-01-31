@@ -1,15 +1,17 @@
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer
-      className="
-        fixed left-0 right-0 bottom-0 z-50
-        bg-[#4b3f3a] text-white
-        px-[18px] py-[10px]
-        flex items-center justify-center
-        text-[13px]
-      "
-    >
-      © {new Date().getFullYear()} EcoBuild — All rights reserved
+    <footer className="w-full border-t border-slate-200 bg-white px-6 py-3">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
+        <p>
+          © {year} Construction Management System
+        </p>
+
+        <p className="text-xs text-slate-400">
+          Built for Admin & Staff Operations
+        </p>
+      </div>
     </footer>
   );
 }

@@ -1,83 +1,119 @@
-import { Link } from "react-router-dom";
+// src/pages/vehicle/VehicleAssignments.jsx
 import { useState } from "react";
-import DashboardLayout from "../../components/common/DashboardLayout";
+import UploadModal from "../../components/modals/UploadModal.jsx";
 
 export default function VehicleAssignment() {
   const [showForm, setShowForm] = useState(false);
 
+  const [form, setForm] = useState({
+    vehicle: "",
+    site: "",
+    operator: "",
+    date: "",
+    status: "Assigned",
+  });
+
+  const save = () => {
+    if (!form.vehicle.trim()) return alert("Vehicle number is required");
+    if (!form.site.trim()) return alert("Site location is required");
+    if (!form.operator.trim()) return alert("Operator name is required");
+    if (!form.date) return alert("Assignment date is required");
+
+    console.log("Saved assignment:", form);
+
+    setShowForm(false);
+    setForm({ vehicle: "", site: "", operator: "", date: "", status: "Assigned" });
+  };
+
   return (
-    <DashboardLayout role={"staff"}>
-      <div className="min-h-screen flex bg-[#F7F6F4]">
-        {/* Sidebar */}
+    <div className="bg-white rounded-[14px] shadow-[0_10px_22px_rgba(0,0,0,.10)] p-6">
+      <h1 className="text-[22px] font-extrabold mb-1">Vehicle Assignment</h1>
+      <p className="text-[#6f6f6f] text-[13px] mb-6">
+        Assign construction vehicles to sites and operators
+      </p>
 
-        {/* Main */}
-        <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-1">Vehicle Assignment</h1>
-          <p className="text-gray-600 mb-6">
-            Assign construction vehicles to sites and operators
-          </p>
-
-        <div className="bg-white rounded-xl shadow p-6 mb-6">
-          <div className="grid grid-cols-3 gap-4">
-            <input className="border p-2 rounded" placeholder="Vehicle" />
-            <input className="border p-2 rounded" placeholder="Site" />
-            <input className="border p-2 rounded" placeholder="Operator" />
-          </div>
-
-          <button
-            onClick={() => setShowForm(true)}
-            className="mt-4 bg-[#C07A4D] text-white px-4 py-2 rounded"
-          >
-            Create Assignment
-          </button>
+      <div className="bg-white rounded-[14px] border border-[#eee] p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input
+            className="border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+            placeholder="Vehicle"
+          />
+          <input
+            className="border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+            placeholder="Site"
+          />
+          <input
+            className="border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+            placeholder="Operator"
+          />
         </div>
-      </main>
 
-      {/* Assignment Modal */}
+        <button
+          onClick={() => setShowForm(true)}
+          className="mt-4 bg-[#4b3f3a] text-white px-4 py-2 rounded-[10px] font-bold"
+          type="button"
+        >
+          + Create Assignment
+        </button>
+      </div>
+
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white w-[480px] rounded-xl p-6 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Create Vehicle Assignment</h2>
+        <UploadModal title="Create Vehicle Assignment" onClose={() => setShowForm(false)}>
+          <div className="grid gap-3">
+            <input
+              className="w-full border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+              placeholder="Vehicle Number"
+              value={form.vehicle}
+              onChange={(e) => setForm((f) => ({ ...f, vehicle: e.target.value }))}
+            />
+            <input
+              className="w-full border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+              placeholder="Site Location"
+              value={form.site}
+              onChange={(e) => setForm((f) => ({ ...f, site: e.target.value }))}
+            />
+            <input
+              className="w-full border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+              placeholder="Operator Name"
+              value={form.operator}
+              onChange={(e) => setForm((f) => ({ ...f, operator: e.target.value }))}
+            />
+            <input
+              type="date"
+              className="w-full border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+              value={form.date}
+              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+            />
 
-            <div className="space-y-3">
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Vehicle Number"
-              />
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Site Location"
-              />
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Operator Name"
-              />
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Assignment Date"
-                type="date"
-              />
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Status (Assigned / Completed)"
-              />
-            </div>
+            <select
+              className="w-full border border-[#ddd] rounded-[10px] px-3 py-2 outline-none"
+              value={form.status}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+            >
+              <option value="Assigned">Assigned</option>
+              <option value="Completed">Completed</option>
+            </select>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-end gap-2 mt-1">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border border-[#ddd] rounded-[10px] font-bold"
+                type="button"
               >
                 Cancel
               </button>
-              <button className="px-4 py-2 bg-[#C07A4D] text-white rounded">
-                Save Assignment
+
+              <button
+                onClick={save}
+                className="px-4 py-2 bg-[#4b3f3a] text-white rounded-[10px] font-bold"
+                type="button"
+              >
+                Save
               </button>
             </div>
           </div>
-        </div>
+        </UploadModal>
       )}
     </div>
-    </DashboardLayout>
   );
 }

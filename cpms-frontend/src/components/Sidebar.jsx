@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -16,12 +17,16 @@ import {
 } from "lucide-react";
 
 const sidebarItems = [
-  // ===== ADMIN =====
+  // ===== OVERVIEW =====
   { label: "Overview", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
-  { label: "Project Dashboard", icon: FolderKanban, path: "/projects", roles: ["admin"] },
-  { label: "User Management", icon: Users, path: "/management", roles: ["admin"] },
+  { label: "Overview", icon: LayoutDashboard, path: "/staff", roles: ["staff"] },
 
-  { label: "Overview", icon: LayoutDashboard, path: "/staff", roles: ["staff", "admin"] },
+  // ===== PROJECTS =====
+  { label: "Project Dashboard", icon: FolderKanban, path: "/projects", roles: ["admin", "staff"] },
+
+  // ===== TASKS =====
+  { label: "Tasks Management", icon: ClipboardList, path: "/tasks", roles: ["admin", "staff"] },
+
   // ===== VEHICLE MANAGEMENT =====
   {
     label: "Vehicle Management",
@@ -29,25 +34,28 @@ const sidebarItems = [
     path: "/vehicle",
     roles: ["admin", "staff"],
     children: [
-      { label: "Vehicle Dashboard", path: "/vehicle", roles: ["admin",] },
-      { label: "Vehicle Assignment", path: "/assignment", roles: ["staff","admin"] },
-      { label: "Manage Vehicles", path: "/manage", roles: ["staff","admin"] },
+      { label: "Vehicle Dashboard", path: "/vehicle", roles: ["admin", "staff"] },
+      { label: "Vehicle Assignment", path: "/assignment", roles: ["admin", "staff"] },
+      { label: "Manage Vehicles", path: "/manage", roles: ["admin", "staff"] },
     ],
   },
 
+  // ===== RESOURCE =====
   { label: "Resource Management", icon: Boxes, path: "/allocation", roles: ["admin", "staff"] },
+
+  // ===== APPOINTMENTS / MESSAGES =====
   { label: "Appointments", icon: Calendar, path: "/appointments", roles: ["admin", "staff"] },
   { label: "Messages", icon: MessageSquare, path: "/messages", roles: ["admin", "staff"] },
-  { label: "Payments", icon: CreditCard, path: "/payment", roles: ["admin"] },
 
-  // ===== STAFF =====
-  { label: "Project Dashboard", icon: FolderKanban, path: "/projects", roles: ["staff"] },
-  { label: "Tasks Management", icon: ClipboardList, path: "/worker", roles: ["staff"] },
-  { label: "User Management", icon: Users, path: "/management", roles: ["staff"] },
+  // ===== USER MANAGEMENT =====
+  { label: "User Management", icon: Users, path: "/management", roles: ["admin", "staff"] },
+
+  // ===== PAYMENTS (ADMIN ONLY) =====
+  { label: "Payments", icon: CreditCard, path: "/payment", roles: ["admin"] },
 
   // ===== PROFILE =====
   { label: "Profile", icon: User, path: "/aprofile", roles: ["admin"] },
-  { label: "Profile", icon: User, path: "/sprofile", roles: ["staff"] },
+  { label: "Profile", icon: User, path: "/profile", roles: ["staff"] },
 ];
 
 export default function Sidebar({ role }) {
@@ -72,11 +80,11 @@ export default function Sidebar({ role }) {
       {/* Menu */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {sidebarItems
-          .filter(item => item.roles.includes(role))
+          .filter((item) => item.roles.includes(role))
           .map((item, index) => {
             const Icon = item.icon;
 
-            // 🔽 SUB MENU
+            // SUB MENU
             if (item.children) {
               return (
                 <div key={index}>
@@ -84,8 +92,7 @@ export default function Sidebar({ role }) {
                     onClick={() =>
                       setOpenMenu(openMenu === item.label ? null : item.label)
                     }
-                    className="w-full flex items-center justify-between px-4 py-2
-                               text-slate-300 hover:bg-slate-800 rounded-md"
+                    className="w-full flex items-center justify-between px-4 py-2 text-slate-300 hover:bg-slate-800 rounded-md"
                   >
                     <div className="flex items-center gap-3">
                       <Icon size={18} />
@@ -100,7 +107,7 @@ export default function Sidebar({ role }) {
                   {openMenu === item.label && (
                     <div className="ml-8 mt-1 space-y-1">
                       {item.children
-                        .filter(sub => sub.roles.includes(role))
+                        .filter((sub) => sub.roles.includes(role))
                         .map((sub, i) => (
                           <NavLink
                             key={i}
@@ -121,7 +128,7 @@ export default function Sidebar({ role }) {
               );
             }
 
-            // 🔹 NORMAL ITEM
+            // NORMAL ITEM
             return (
               <NavLink
                 key={index}
@@ -144,8 +151,7 @@ export default function Sidebar({ role }) {
       <div className="px-3 py-4 border-t border-slate-700">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2
-                     text-sm text-red-400 hover:bg-slate-800 rounded-md"
+          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 rounded-md"
         >
           <LogOut size={18} />
           Logout

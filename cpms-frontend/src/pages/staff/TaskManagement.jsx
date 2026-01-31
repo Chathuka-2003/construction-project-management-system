@@ -15,6 +15,7 @@ function emptyTask() {
     dueDate: "",
     assignedWorker: "",
     role: "",
+    vehicleNumber: "", // ✅ added
     status: "Not Started",
   };
 }
@@ -37,7 +38,8 @@ export default function TaskManagement() {
       list = list.filter(
         (t) =>
           (t.name || "").toLowerCase().includes(needle) ||
-          (t.location || "").toLowerCase().includes(needle)
+          (t.location || "").toLowerCase().includes(needle) ||
+          (t.vehicleNumber || "").toLowerCase().includes(needle) // ✅ searchable
       );
     }
 
@@ -68,6 +70,7 @@ export default function TaskManagement() {
       dueDate: t.dueDate === "pending" ? "" : t.dueDate,
       assignedWorker: t.assignedWorker || "",
       role: t.role || "",
+      vehicleNumber: t.vehicleNumber || "", // ✅ added
       status: t.status || "Not Started",
     });
     setOpenForm(true);
@@ -77,7 +80,11 @@ export default function TaskManagement() {
     if (!form.name.trim()) return alert("Task name is required");
     if (!form.location.trim()) return alert("Location is required");
 
-    const payload = { ...form, dueDate: form.dueDate ? form.dueDate : "pending" };
+    const payload = {
+      ...form,
+      dueDate: form.dueDate ? form.dueDate : "pending",
+      vehicleNumber: (form.vehicleNumber || "").trim(), // ✅ normalize
+    };
 
     if (editing) updateTask(editing.id, payload);
     else addTask(payload);
@@ -102,6 +109,17 @@ export default function TaskManagement() {
       </td>
 
       <td className="p-[10px_8px] align-top">{t.location}</td>
+
+      {/* ✅ Vehicle Number column */}
+      <td className="p-[10px_8px] align-top">
+        {t.vehicleNumber ? (
+          <span className="inline-block px-[10px] py-[5px] rounded-full text-[12px] font-bold bg-[#eef6ff] text-[#1e3a8a]">
+            {t.vehicleNumber}
+          </span>
+        ) : (
+          <span className="text-[#6f6f6f] text-[13px]">—</span>
+        )}
+      </td>
 
       <td className="p-[10px_8px] align-top">
         {t.dueDate === "pending" ? (
@@ -157,7 +175,7 @@ export default function TaskManagement() {
         <div>
           <h2 className="m-0 text-[22px] font-extrabold">Tasks</h2>
           <div className="text-[#6f6f6f] text-[13px] mt-1">
-            Expandable lists: Today’s & Pending • Search + Sort • CRUD
+            Today’s & Pending • Search + Sort • CRUD • Vehicle Number included
           </div>
         </div>
 
@@ -176,7 +194,7 @@ export default function TaskManagement() {
       <div className="flex gap-2 flex-wrap items-center">
         <input
           className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
-          placeholder="Search by task name or location..."
+          placeholder="Search by task / location / vehicle..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -202,6 +220,7 @@ export default function TaskManagement() {
                 <tr className="border-b border-[#eee]">
                   <th className="text-left p-[10px_8px]">Task</th>
                   <th className="text-left p-[10px_8px]">Location</th>
+                  <th className="text-left p-[10px_8px]">Vehicle No.</th>
                   <th className="text-left p-[10px_8px]">Due</th>
                   <th className="text-left p-[10px_8px]">Assigned</th>
                   <th className="text-left p-[10px_8px]">Status</th>
@@ -212,7 +231,7 @@ export default function TaskManagement() {
                 {todays.map(renderTaskRow)}
                 {todays.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-[#6f6f6f] text-[13px] p-[14px]">
+                    <td colSpan={7} className="text-[#6f6f6f] text-[13px] p-[14px]">
                       No tasks for today.
                     </td>
                   </tr>
@@ -230,6 +249,7 @@ export default function TaskManagement() {
                 <tr className="border-b border-[#eee]">
                   <th className="text-left p-[10px_8px]">Task</th>
                   <th className="text-left p-[10px_8px]">Location</th>
+                  <th className="text-left p-[10px_8px]">Vehicle No.</th>
                   <th className="text-left p-[10px_8px]">Due</th>
                   <th className="text-left p-[10px_8px]">Assigned</th>
                   <th className="text-left p-[10px_8px]">Status</th>
@@ -240,7 +260,7 @@ export default function TaskManagement() {
                 {pending.map(renderTaskRow)}
                 {pending.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-[#6f6f6f] text-[13px] p-[14px]">
+                    <td colSpan={7} className="text-[#6f6f6f] text-[13px] p-[14px]">
                       No pending tasks.
                     </td>
                   </tr>
@@ -253,7 +273,10 @@ export default function TaskManagement() {
 
       {/* Modal */}
       {openForm ? (
-        <UploadModal title={editing ? "Edit Task" : "New Task"} onClose={() => setOpenForm(false)}>
+        <UploadModal
+          title={editing ? "Edit Task" : "New Task"}
+          onClose={() => setOpenForm(false)}
+        >
           <div className="flex gap-2 flex-wrap items-center">
             <input
               className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
@@ -269,12 +292,26 @@ export default function TaskManagement() {
             />
           </div>
 
+          {/* ✅ Vehicle number input */}
+          <div className="flex gap-2 flex-wrap items-center mt-[10px]">
+            <input
+              className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
+              placeholder="Vehicle number (optional)"
+              value={form.vehicleNumber}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, vehicleNumber: e.target.value }))
+              }
+            />
+          </div>
+
           <div className="mt-[10px]">
             <textarea
               className="w-full min-h-[90px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
               placeholder="Description"
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
             />
           </div>
 
@@ -283,7 +320,9 @@ export default function TaskManagement() {
               className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
               type="date"
               value={form.dueDate}
-              onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, dueDate: e.target.value }))
+              }
             />
             <select
               className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
@@ -303,7 +342,9 @@ export default function TaskManagement() {
               className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
               placeholder="Assigned worker"
               value={form.assignedWorker}
-              onChange={(e) => setForm((f) => ({ ...f, assignedWorker: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, assignedWorker: e.target.value }))
+              }
             />
             <input
               className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"

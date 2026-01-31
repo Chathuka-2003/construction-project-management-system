@@ -27,31 +27,19 @@ function avatarBg(kind) {
 }
 
 export default function Messages() {
-  const {
-    data,
-    sendMessage,
-    markConversationRead,
-    addAppointment,
-  } = useStore();
-
+  const { data, sendMessage, markConversationRead, addAppointment } = useStore();
   const [params] = useSearchParams();
 
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
-  const [activeId, setActiveId] = useState(
-    data.conversations?.[0]?.id || null
-  );
+
+  const [activeId, setActiveId] = useState(data.conversations?.[0]?.id || null);
   const [text, setText] = useState("");
 
   const [openAppt, setOpenAppt] = useState(false);
-  const [appt, setAppt] = useState({
-    title: "",
-    location: "",
-    date: "",
-    time: "",
-  });
+  const [appt, setAppt] = useState({ title: "", location: "", date: "", time: "" });
 
-  // open conversation from URL ?c=
+  // ✅ open conversation from URL ?c=
   useEffect(() => {
     const cid = params.get("c");
     if (cid != null) {
@@ -65,23 +53,18 @@ export default function Messages() {
     let arr = [...(data.conversations || [])];
 
     if (filter !== "all") arr = arr.filter((c) => c.kind === filter);
+
     if (needle) {
-      arr = arr.filter((c) =>
-        (c.title || "").toLowerCase().includes(needle)
-      );
+      arr = arr.filter((c) => (c.title || "").toLowerCase().includes(needle));
     }
 
-    arr.sort(
-      (a, b) =>
-        new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0)
-    );
+    arr.sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
     return arr;
   }, [data.conversations, q, filter]);
 
-  const active = useMemo(
-    () => (data.conversations || []).find((c) => c.id === activeId) || null,
-    [data.conversations, activeId]
-  );
+  const active = useMemo(() => {
+    return (data.conversations || []).find((c) => c.id === activeId) || null;
+  }, [data.conversations, activeId]);
 
   const msgs = useMemo(() => {
     return (data.chatMessages || [])
@@ -119,6 +102,7 @@ export default function Messages() {
       title: appt.title.trim(),
       location: appt.location.trim(),
       dateTime: toISO(appt.date, appt.time),
+      conversationId: activeId, // ✅ link appointment to chat
     });
 
     setOpenAppt(false);
@@ -130,7 +114,7 @@ export default function Messages() {
       {/* LEFT */}
       <aside className="bg-white border border-[#eee] rounded-[14px] flex flex-col overflow-hidden">
         <div className="p-4 border-b border-[#eee]">
-          <h3 className="font-bold mb-2">Messages</h3>
+          <h3 className="font-extrabold mb-2">Messages</h3>
 
           <div className="flex items-center gap-2 bg-[#f6f6f6] border border-[#e6e6e6] rounded-[10px] px-3 py-2">
             <span>⌕</span>
@@ -147,11 +131,12 @@ export default function Messages() {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-3 py-1 rounded-full border text-sm ${
+                className={`px-3 py-1 rounded-full border text-sm font-bold ${
                   filter === f.key
                     ? "bg-[#b56c3f] text-white border-[#b56c3f]"
-                    : "bg-white border-[#e6e6e6]"
+                    : "bg-white border-[#e6e6e6] text-[#333]"
                 }`}
+                type="button"
               >
                 {f.label}
               </button>
@@ -169,6 +154,7 @@ export default function Messages() {
                   ? "bg-[#fff8f3] border border-[#e7d6cb]"
                   : "hover:bg-[#fafafa]"
               }`}
+              type="button"
             >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${avatarBg(
@@ -179,15 +165,13 @@ export default function Messages() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <b className="truncate">{c.title}</b>
                   <span className="text-xs text-gray-400">
                     {timeLabel(c.lastMessageAt)}
                   </span>
                 </div>
-                <div className="text-sm text-gray-500 truncate">
-                  {c.subtitle}
-                </div>
+                <div className="text-sm text-gray-500 truncate">{c.subtitle}</div>
               </div>
 
               {c.unread > 0 && (
@@ -197,6 +181,10 @@ export default function Messages() {
               )}
             </button>
           ))}
+
+          {list.length === 0 && (
+            <div className="p-4 text-sm text-gray-400">No conversations found.</div>
+          )}
         </div>
       </aside>
 
@@ -222,22 +210,20 @@ export default function Messages() {
               </div>
 
               <div className="flex-1">
-                <div className="font-bold">{active.title}</div>
+                <div className="font-extrabold">{active.title}</div>
                 <div className="text-sm text-gray-500">{active.subtitle}</div>
               </div>
 
               <button
                 onClick={() => setOpenAppt(true)}
-                className="border px-3 py-2 rounded-[10px] text-sm"
+                className="border px-3 py-2 rounded-[10px] text-sm font-bold hover:bg-gray-50"
+                type="button"
               >
                 + Appointment
               </button>
             </div>
 
-            <div
-              ref={scrollerRef}
-              className="flex-1 overflow-auto p-4 bg-[#fafafa]"
-            >
+            <div ref={scrollerRef} className="flex-1 overflow-auto p-4 bg-[#fafafa]">
               {msgs.map((m) => (
                 <div
                   key={m.id}
@@ -252,9 +238,7 @@ export default function Messages() {
                         : "bg-white border"
                     }`}
                   >
-                    <div className="text-xs opacity-80 mb-1">
-                      {m.senderLabel}
-                    </div>
+                    <div className="text-xs opacity-80 mb-1">{m.senderLabel}</div>
                     {m.text}
                     <div className="text-[10px] opacity-70 text-right mt-1">
                       {timeLabel(m.createdAt)}
@@ -262,11 +246,15 @@ export default function Messages() {
                   </div>
                 </div>
               ))}
+
+              {msgs.length === 0 && (
+                <div className="text-sm text-gray-400">No messages yet.</div>
+              )}
             </div>
 
             <div className="flex gap-2 p-3 border-t border-[#eee]">
               <input
-                className="flex-1 border rounded-full px-4 py-2"
+                className="flex-1 border rounded-full px-4 py-2 outline-none"
                 placeholder="Type your message..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -274,7 +262,8 @@ export default function Messages() {
               />
               <button
                 onClick={onSend}
-                className="bg-[#b56c3f] text-white px-4 rounded-full"
+                className="bg-[#b56c3f] text-white px-4 rounded-full font-bold hover:opacity-90"
+                type="button"
               >
                 Send
               </button>
@@ -306,30 +295,28 @@ export default function Messages() {
                 type="date"
                 className="border rounded px-3 py-2 flex-1"
                 value={appt.date}
-                onChange={(e) =>
-                  setAppt((a) => ({ ...a, date: e.target.value }))
-                }
+                onChange={(e) => setAppt((a) => ({ ...a, date: e.target.value }))}
               />
               <input
                 type="time"
                 className="border rounded px-3 py-2 flex-1"
                 value={appt.time}
-                onChange={(e) =>
-                  setAppt((a) => ({ ...a, time: e.target.value }))
-                }
+                onChange={(e) => setAppt((a) => ({ ...a, time: e.target.value }))}
               />
             </div>
 
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setOpenAppt(false)}
-                className="border px-3 py-2 rounded"
+                className="border px-4 py-2 rounded font-bold hover:bg-gray-50"
+                type="button"
               >
                 Cancel
               </button>
               <button
                 onClick={saveAppointment}
-                className="bg-[#4b3f3a] text-white px-4 py-2 rounded"
+                className="bg-[#4b3f3a] text-white px-4 py-2 rounded font-bold hover:opacity-90"
+                type="button"
               >
                 Save
               </button>

@@ -5,7 +5,13 @@ import UploadModal from "../../components/modals/UploadModal.jsx";
 import ConfirmDialog from "../../components/modals/ConfirmDialog.jsx";
 
 function emptyForm() {
-  return { title: "", location: "", date: "", time: "" };
+  return {
+    title: "",
+    location: "",
+    date: "",
+    time: "",
+    conversationId: null,
+  };
 }
 
 function toISO(date, time) {
@@ -18,7 +24,13 @@ function splitISO(dateTime) {
 }
 
 export default function StaffAppointments() {
-  const { data, addAppointment, updateAppointment, deleteAppointment } = useStore();
+  const {
+    data,
+    addAppointment,
+    updateAppointment,
+    deleteAppointment,
+  } = useStore();
+
   const navigate = useNavigate();
 
   const [openForm, setOpenForm] = useState(false);
@@ -26,6 +38,7 @@ export default function StaffAppointments() {
   const [form, setForm] = useState(emptyForm());
   const [confirm, setConfirm] = useState(null);
 
+  // ✅ Sort appointments by date (earliest first)
   const appointments = useMemo(() => {
     return [...(data.appointments || [])].sort(
       (a, b) => new Date(a.dateTime) - new Date(b.dateTime)
@@ -41,12 +54,15 @@ export default function StaffAppointments() {
   const startEdit = (a) => {
     setEditing(a);
     const { date, time } = splitISO(a.dateTime);
+
     setForm({
       title: a.title || "",
       location: a.location || "",
       date,
       time,
+      conversationId: a.conversationId || null,
     });
+
     setOpenForm(true);
   };
 
@@ -60,10 +76,14 @@ export default function StaffAppointments() {
       title: form.title.trim(),
       location: form.location.trim(),
       dateTime: toISO(form.date, form.time),
+      conversationId: form.conversationId || null,
     };
 
-    if (editing) updateAppointment(editing.id, payload);
-    else addAppointment(payload);
+    if (editing) {
+      updateAppointment(editing.id, payload);
+    } else {
+      addAppointment(payload);
+    }
 
     setOpenForm(false);
   };
@@ -90,14 +110,19 @@ export default function StaffAppointments() {
 
       <div className="h-px bg-[#eee] my-3" />
 
+      {/* List */}
       {appointments.length === 0 ? (
-        <p className="text-[#6f6f6f] text-[13px]">No appointments scheduled.</p>
+        <p className="text-[#6f6f6f] text-[13px]">
+          No appointments scheduled.
+        </p>
       ) : (
         <div className="space-y-3">
           {appointments.map((a) => (
             <div
               key={a.id}
-              className="bg-white p-[14px] rounded-[12px] shadow-[0_6px_16px_rgba(0,0,0,.08)] border-l-[6px] border-l-[#d28b5c]"
+              className="bg-white p-[14px] rounded-[12px]
+                         shadow-[0_6px_16px_rgba(0,0,0,.08)]
+                         border-l-[6px] border-l-[#d28b5c]"
             >
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div>
@@ -111,26 +136,32 @@ export default function StaffAppointments() {
                     📍 {a.location}
                   </div>
 
-                  {a.conversationId ? (
+                  {a.conversationId && (
                     <div className="text-[12px] text-[#777] mt-2">
                       💬 Linked chat: #{a.conversationId}
                     </div>
-                  ) : null}
+                  )}
                 </div>
 
                 <div className="flex gap-2 flex-wrap items-center justify-end">
-                  {a.conversationId ? (
+                  {a.conversationId && (
                     <button
-                      className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-[10px] py-2 text-[13px]"
-                      onClick={() => navigate(`/messages?c=${a.conversationId}`)}
+                      className="cursor-pointer font-bold rounded-[10px]
+                                 border border-[#ddd] bg-transparent
+                                 px-[10px] py-2 text-[13px]"
+                      onClick={() =>
+                        navigate(`/messages?c=${a.conversationId}`)
+                      }
                       type="button"
                     >
                       Open Chat
                     </button>
-                  ) : null}
+                  )}
 
                   <button
-                    className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-[10px] py-2 text-[13px]"
+                    className="cursor-pointer font-bold rounded-[10px]
+                               border border-[#ddd] bg-transparent
+                               px-[10px] py-2 text-[13px]"
                     onClick={() => startEdit(a)}
                     type="button"
                   >
@@ -138,7 +169,9 @@ export default function StaffAppointments() {
                   </button>
 
                   <button
-                    className="cursor-pointer font-bold rounded-[10px] bg-[#c0392b] text-white px-[10px] py-2 text-[13px]"
+                    className="cursor-pointer font-bold rounded-[10px]
+                               bg-[#c0392b] text-white
+                               px-[10px] py-2 text-[13px]"
                     onClick={() => setConfirm(a.id)}
                     type="button"
                   >
@@ -151,7 +184,7 @@ export default function StaffAppointments() {
         </div>
       )}
 
-      {/* Add/Edit Modal */}
+      {/* Add / Edit Modal */}
       {openForm && (
         <UploadModal
           title={editing ? "Edit Appointment" : "New Appointment"}
@@ -159,47 +192,53 @@ export default function StaffAppointments() {
         >
           <div className="grid gap-[10px]">
             <input
-              className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
-              placeholder="Appointment title (e.g., Client Meeting)"
+              className="px-3 py-2 rounded-[10px] border border-[#ddd]"
+              placeholder="Appointment title"
               value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, title: e.target.value }))
+              }
             />
 
             <input
-              className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
-              placeholder="Location (e.g., Conference Room A)"
+              className="px-3 py-2 rounded-[10px] border border-[#ddd]"
+              placeholder="Location"
               value={form.location}
               onChange={(e) =>
                 setForm((f) => ({ ...f, location: e.target.value }))
               }
             />
 
-            <div className="flex gap-2 flex-wrap items-center">
+            <div className="flex gap-2">
               <input
-                className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
                 type="date"
+                className="flex-1 px-3 py-2 rounded-[10px] border border-[#ddd]"
                 value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, date: e.target.value }))
+                }
               />
               <input
-                className="min-w-[220px] px-3 py-2 rounded-[10px] border border-[#ddd] bg-white outline-none"
                 type="time"
+                className="flex-1 px-3 py-2 rounded-[10px] border border-[#ddd]"
                 value={form.time}
-                onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, time: e.target.value }))
+                }
               />
             </div>
 
-            <div className="flex gap-2 flex-wrap items-center justify-end">
+            <div className="flex justify-end gap-2">
               <button
-                className="cursor-pointer font-bold rounded-[10px] border border-[#ddd] bg-transparent px-3 py-2"
                 onClick={() => setOpenForm(false)}
+                className="border px-4 py-2 rounded font-bold"
                 type="button"
               >
                 Cancel
               </button>
               <button
-                className="cursor-pointer font-bold rounded-[10px] px-3 py-2 bg-[#4b3f3a] text-white"
                 onClick={save}
+                className="bg-[#4b3f3a] text-white px-4 py-2 rounded font-bold"
                 type="button"
               >
                 Save
