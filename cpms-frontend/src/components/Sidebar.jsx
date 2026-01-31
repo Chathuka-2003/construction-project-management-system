@@ -26,6 +26,7 @@ function normalizeRole(roleRaw) {
   return "staff";
 }
 
+// ================= NAVIGATION =================
 const NAV = [
   // ================= ADMIN =================
   { label: "Admin Overview", icon: LayoutDashboard, to: "/admin", roles: ["admin"] },
@@ -35,11 +36,20 @@ const NAV = [
 
   // ================= STAFF =================
   { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff"] },
-  { label: "User Management", icon: LayoutDashboard, to: "/staff/dashboard", roles: ["staff", "admin"] },
-  { label: "Projects", icon: FolderKanban, to: "/staff/projects", roles: ["staff", "admin"] },
-  { label: "Tasks", icon: ClipboardList, to: "/staff/tasks", roles: ["staff", "admin"] },
-  { label: "Appointments", icon: Calendar, to: "/staff/appointments", roles: ["staff", "admin"] },
-  { label: "Messages", icon: MessageSquare, to: "/staff/messages", roles: ["staff", "admin"] },
+
+  {
+    label: "Projects",
+    icon: FolderKanban,
+    roles: ["admin", "staff"],
+    children: [
+      { label: "Assigned Projects", to: (role) => role === "admin" ? "/admin/projects" : "/staff/projects", roles: ["admin","staff"] },
+      { label: "Dashboard", to: (role) => role === "admin" ? "/admin/dashboard" : "/staff/dashboard", roles: ["admin","staff"] }
+
+    ]
+  },
+  { label: "Tasks", icon: ClipboardList, to: (role) => (role === "admin" ? "/admin/tasks" : "/staff/tasks"), roles: ["admin","staff"] },
+   { label: "Appointments", icon: Calendar, to: (role) => (role === "admin" ? "/admin/appointments" : "/staff/appointments"), roles: ["admin","staff"] },
+    { label: "messages", icon: MessageSquare, to: (role) => (role === "admin" ? "/admin/messages" : "/staff/messages"), roles: ["admin","staff"] },
   { label: "Staff Profile", icon: User, to: "/staff/profile", roles: ["staff"] },
 
   // ================= VEHICLE =================
@@ -48,14 +58,14 @@ const NAV = [
     icon: Truck,
     roles: ["admin", "staff"],
     children: [
-      { label: "Vehicle Dashboard", to: "/vehicle", roles: ["admin", "staff"] },
-      { label: "Vehicle Assignment", to: "/vehicle/assignment", roles: ["admin", "staff"] },
-      { label: "Manage Vehicles", to: "/vehicle/manage", roles: ["admin", "staff"] },
+     { label: "Vehicle Dashboard", to: (role) => role === "admin" ? "/admin/vehicle" : "/staff/vehicle", roles: ["admin","staff"] },
+      { label: "Vehicle Assignment", to: (role) => role === "admin" ? "/admin/vehicle/assignment" : "/staff/vehicle/assignment", roles: ["admin","staff"] },
+      { label: "Manage Vehicles", to: "/admin/manage", roles: ["admin"] },
     ],
   },
 
   // ================= RESOURCE =================
-  { label: "Resource Management", icon: Boxes, to: "/allocation", roles: ["admin", "staff"] },
+   { label: "Resource Allocation", icon: Boxes, to: (role) => (role === "admin" ? "/admin/allocation" : "/staff/allocation"), roles: ["admin","staff"] },
 ];
 
 function cx(...classes) {
