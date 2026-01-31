@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import DashboardLayout from "../../components/common/DashboardLayout";
 
 export default function StaffProfile() {
   // -----------------------------
@@ -70,7 +69,7 @@ export default function StaffProfile() {
   // UI
   // -----------------------------
   return (
-    <DashboardLayout role={role}>
+    
       <div className="p-6 max-w-4xl">
         <h1 className="text-2xl font-semibold mb-6">Staff Profile</h1>
         <div className="bg-white rounded-xl shadow border p-6 space-y-6">
@@ -252,6 +251,6 @@ export default function StaffProfile() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+   
   );
 }
