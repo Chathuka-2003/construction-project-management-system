@@ -1,13 +1,16 @@
-import { Outlet } from "react-router-dom";
+import React from "react";
 import Sidebar from "../components/Sidebar";
+import { Outlet } from "react-router-dom";
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <Sidebar role="admin" />
 
-      <main className="flex-1 overflow-y-auto">
-        <Outlet />
+      {/* Main content */}
+      <main className="flex-1 p-6 bg-gray-100">
+        <Outlet /> {/* This is where /admin/* child routes render */}
       </main>
     </div>
   );
