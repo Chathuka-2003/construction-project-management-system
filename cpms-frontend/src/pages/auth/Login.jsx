@@ -7,7 +7,7 @@ import Logo from "../../assets/Logo.png";
 export default function CompanyLogin() {
   const navigate = useNavigate();
 
-  // UI state only
+  // UI state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -15,11 +15,15 @@ export default function CompanyLogin() {
   function onSubmit(e) {
     e.preventDefault();
 
-    // ✅ DEMO ROUTING ONLY (NO AUTH)
-    if (email.includes("admin")) {
-      navigate("/admin", { replace: true });
+    // 🔐 DEMO AUTH (for ProtectedRoute)
+    localStorage.setItem("token", "dummy-token");
+
+    if (email.toLowerCase().includes("admin")) {
+      localStorage.setItem("role", "admin");
+      navigate("/admin/overview", { replace: true });
     } else {
-      navigate("/staff", { replace: true });
+      localStorage.setItem("role", "staff");
+      navigate("/staff/overview", { replace: true });
     }
   }
 
