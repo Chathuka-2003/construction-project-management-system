@@ -151,6 +151,7 @@ export default function Sidebar({ role }) {
           Logout
         </button>
       </div>
+      
     </aside>
   );
 }
