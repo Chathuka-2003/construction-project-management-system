@@ -8,9 +8,9 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <Sidebar role="admin" />
 
-      {/* Main content */}
-      <main className="flex-1 p-6 bg-gray-100">
-        <Outlet /> {/* This is where /admin/* child routes render */}
+      {/* Main content - REMOVED px-6 left padding, kept only py-6 and right padding */}
+      <main className="flex-1 w-full min-w-0 pr-6 py-6 bg-gray-50 overflow-y:auto overflow-hidden">
+        <Outlet /> {/* Child routes render here */}
       </main>
     </div>
   );
