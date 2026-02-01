@@ -27,7 +27,9 @@ import ManageVehicles from "./pages/vehicle/ManageVehicles";
 
 import AllocationDashboard from "./pages/allocation/AllocationDashboard";
 import WorkerManagementDashboard from "./pages/admin/WorkerManagementDashboard";
-
+import NewProjectModal from "./pages/model/NewProjectModal";
+import NewTaskModal from "./pages/model/NewTaskModal";
+import RegisterUser from "./pages/admin/RegisterUser";
 function App() {
   return (
     <Router>
@@ -55,6 +57,9 @@ function App() {
             <Route path="workers" element={<WorkerManagementDashboard />} />        {/* relative */}
             <Route path="add-worker" element={<AddWorkerform />} />        {/* relative */}
             <Route path="add-user" element={<AddUserform />} />        {/* relative */}
+            <Route path="newprojects" element={<NewProjectModal />} />        {/* relative */}
+            <Route path="newtask" element={<NewTaskModal />} />        {/* relative */}
+            <Route path="register" element={<RegisterUser />} />        {/* relative */}
           </Route>
         </Route>
 
