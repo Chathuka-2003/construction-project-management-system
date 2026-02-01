@@ -1,24 +1,23 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
-import DashboardLayout from "../../components/common/DashboardLayout";
 
 export default function VehicleAssignment() {
+  const role = localStorage.getItem("role") || "staff";
+  const [activeMenu, setActiveMenu] = useState("assignments");
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <DashboardLayout role={"staff"}>
-      <div className="min-h-screen flex bg-[#F7F6F4]">
-        {/* Sidebar */}
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-[#F7F6F4]">
+   
 
-        {/* Main */}
-        <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-1">Vehicle Assignment</h1>
-          <p className="text-gray-600 mb-6">
-            Assign construction vehicles to sites and operators
-          </p>
+      {/* MAIN CONTENT */}
+      <main className="lg:col-span-10 p-8">
+        <h1 className="text-2xl font-bold mb-1">Vehicle Assignment</h1>
+        <p className="text-gray-600 mb-6">
+          Assign construction vehicles to sites and operators
+        </p>
 
         <div className="bg-white rounded-xl shadow p-6 mb-6">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input className="border p-2 rounded" placeholder="Vehicle" />
             <input className="border p-2 rounded" placeholder="Site" />
             <input className="border p-2 rounded" placeholder="Operator" />
@@ -33,11 +32,13 @@ export default function VehicleAssignment() {
         </div>
       </main>
 
-      {/* Assignment Modal */}
+      {/* MODAL */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white w-[480px] rounded-xl p-6 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Create Vehicle Assignment</h2>
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+          <div className="bg-white w-full max-w-md rounded-xl p-6 shadow-lg">
+            <h2 className="text-xl font-bold mb-4">
+              Create Vehicle Assignment
+            </h2>
 
             <div className="space-y-3">
               <input
@@ -54,7 +55,6 @@ export default function VehicleAssignment() {
               />
               <input
                 className="w-full border rounded px-3 py-2"
-                placeholder="Assignment Date"
                 type="date"
               />
               <input
@@ -78,6 +78,5 @@ export default function VehicleAssignment() {
         </div>
       )}
     </div>
-    </DashboardLayout>
   );
 }
