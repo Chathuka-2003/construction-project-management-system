@@ -1,7 +1,16 @@
-// src/pages/projects/AssignedProjects.jsx
+// src/pages/staff/AssignedProjects.jsx
 import { useEffect, useMemo, useState } from "react";
 import NewProjectModal from "../model/NewProjectModal";
-const STATUSES = ["Planning", "Design", "Construction", "Finishing", "Handover", "On Hold"];
+
+const STATUSES = [
+  "Planning",
+  "Design",
+  "Construction",
+  "Finishing",
+  "Handover",
+  "On Hold",
+];
+
 const STORAGE_KEY = "cpms_staff_projects_v1";
 
 function uid() {
@@ -41,33 +50,6 @@ function StatusPill({ value }) {
   );
 }
 
-function Modal({ title, children, onClose }) {
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  
-
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="rounded-lg px-3 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-100"
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="px-6 py-5">{children}</div>
-      </div>
-    </div>
-  );
-}
-
 function ConfirmDialog({ message, onNo, onYes }) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
@@ -98,8 +80,6 @@ function ConfirmDialog({ message, onNo, onYes }) {
 }
 
 export default function AssignedProjects() {
-  const role = localStorage.getItem("role") || "staff";
-
   const [projects, setProjects] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -114,10 +94,12 @@ export default function AssignedProjects() {
   }, [projects]);
 
   const [q, setQ] = useState("");
-  const [sort, setSort] = useState("new");
+  const [sort, setSort] = useState("new"); // new | old
   const [openForm, setOpenForm] = useState(false);
+
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm());
+
   const [confirmId, setConfirmId] = useState(null);
 
   const filtered = useMemo(() => {
@@ -244,9 +226,15 @@ export default function AssignedProjects() {
                       {p.description}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{p.customer}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{p.location}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{p.startDate}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {p.customer}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {p.location}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {p.startDate}
+                  </td>
                   <td className="px-4 py-3">
                     <StatusPill value={p.status} />
                   </td>
@@ -273,7 +261,10 @@ export default function AssignedProjects() {
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-sm text-gray-500"
+                  >
                     No projects found. Click <b>+ New Project</b> to add one.
                   </td>
                 </tr>
@@ -284,15 +275,15 @@ export default function AssignedProjects() {
       </div>
 
       {openForm && (
-  <NewProjectModal
-    onClose={() => setOpenForm(false)}
-    onSave={save}
-    form={form}
-    setForm={setForm}
-    isEdit={!!editingId}
-  />
-)}
-
+        <NewProjectModal
+          onClose={() => setOpenForm(false)}
+          onSave={save}
+          form={form}
+          setForm={setForm}
+          isEdit={!!editingId}
+          statuses={STATUSES}
+        />
+      )}
 
       {confirmId && (
         <ConfirmDialog

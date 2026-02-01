@@ -1,20 +1,25 @@
-import React from "react";
+import { NavLink } from "react-router-dom";
+import "..app.css";
 
-export default function Navbar({ role }) {
+export default function Navbar() {
   return (
-    <header className="h-14 bg-white border-b flex items-center justify-between px-6">
-      <h1 className="text-sm font-semibold text-gray-700">
-        {role === "admin" ? "Admin Dashboard" : "Staff Dashboard"}
-      </h1>
-
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-600">
-          {role === "admin" ? "Admin Profile" : "Staff Profile"}
-        </span>
-        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
-          {role === "admin" ? "A" : "S"}
+    <nav className="navbar">
+      <div className="brand">
+        <img src="/logo.jpeg"/>
+        <div className="brand-title">
+          <b>EcoBuild</b>
+          <span>Construction Management System</span>
         </div>
       </div>
-    </header>
+
+      <div className="nav-links">
+        <NavLink to="/" end>Dashboard</NavLink>
+        <NavLink to="/projects">Projects</NavLink>
+        <NavLink to="/tasks">Tasks</NavLink>
+        <NavLink to="/appointments">Appointments</NavLink>
+        <NavLink to="/messages">Messages</NavLink>
+        <NavLink to="/profile">Profile</NavLink>
+      </div>
+    </nav>
   );
 }
