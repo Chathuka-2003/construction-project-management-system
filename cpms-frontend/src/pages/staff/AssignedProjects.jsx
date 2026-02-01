@@ -47,6 +47,7 @@ function Modal({ title, children, onClose }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+  
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
