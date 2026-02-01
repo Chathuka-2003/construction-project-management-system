@@ -1,6 +1,6 @@
 // src/pages/projects/AssignedProjects.jsx
 import { useEffect, useMemo, useState } from "react";
-
+import NewProjectModal from "../model/NewProjectModal";
 const STATUSES = ["Planning", "Design", "Construction", "Finishing", "Handover", "On Hold"];
 const STORAGE_KEY = "cpms_staff_projects_v1";
 
@@ -283,73 +283,15 @@ export default function AssignedProjects() {
       </div>
 
       {openForm && (
-        <Modal
-          title={editingId ? "Edit Project" : "New Project"}
-          onClose={() => setOpenForm(false)}
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            <input
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              placeholder="Project name"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            />
-            <input
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              placeholder="Customer name"
-              value={form.customer}
-              onChange={(e) => setForm((f) => ({ ...f, customer: e.target.value }))}
-            />
-            <input
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              placeholder="Location"
-              value={form.location}
-              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-            />
-            <input
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              type="date"
-              value={form.startDate}
-              onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
-            />
-            <select
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 md:col-span-2"
-              value={form.status}
-              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+  <NewProjectModal
+    onClose={() => setOpenForm(false)}
+    onSave={save}
+    form={form}
+    setForm={setForm}
+    isEdit={!!editingId}
+  />
+)}
 
-            <textarea
-              className="min-h-[110px] w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 md:col-span-2"
-              placeholder="Description"
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            />
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2">
-            <button
-              className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-200"
-              onClick={() => setOpenForm(false)}
-              type="button"
-            >
-              Cancel
-            </button>
-            <button
-              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              onClick={save}
-              type="button"
-            >
-              Save
-            </button>
-          </div>
-        </Modal>
-      )}
 
       {confirmId && (
         <ConfirmDialog
