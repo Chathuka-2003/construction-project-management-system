@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import toast from "react-hot-toast";
+
 import { UserPlus } from "lucide-react";
 
 export default function AddUserform() {
