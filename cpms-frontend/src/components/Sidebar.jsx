@@ -33,7 +33,7 @@ const NAV = [
   { label: "Worker Management", icon: Users, to: "/admin/workers", roles: ["admin"] },
    { label: "Staff Overview", icon: LayoutDashboard, to: "/staff", roles: ["staff"] },
   { label: "Payments", icon: CreditCard, to: (role) => (role === "admin" ? "/admin/payment" : "/staff/payment"), roles: ["admin","staff"] },
-  { label: "Admin Profile", icon: User, to: "/admin/profile", roles: ["admin"] },
+  
 
   // ================= STAFF =================
  
@@ -67,6 +67,7 @@ const NAV = [
   // ================= RESOURCE =================
    { label: "Resource Allocation", icon: Boxes, to: (role) => (role === "admin" ? "/admin/allocation" : "/staff/allocation"), roles: ["admin","staff"] },
     { label: "Staff Profile", icon: User, to: "/staff/profile", roles: ["staff"] },
+      { label: "Admin Profile", icon: User, to: "/admin/profile", roles: ["admin"] },
 
 ];
 
@@ -180,6 +181,7 @@ export default function Sidebar({ role: roleProp }) {
               <NavLink
                 key={item.to}
                 to={typeof item.to === "function" ? item.to(role) : item.to}
+                end
                 className={({ isActive }) =>
                   cx(
                     "flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-medium transition",
