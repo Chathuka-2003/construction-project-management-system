@@ -165,13 +165,13 @@ export default function WorkerManagementDashboard() {
           {isAdmin && (
             <div className="flex gap-3">
               <button
-                onClick={() => navigate("/adduser")}
+                onClick={() => navigate("/admin/add-user")}
                 className="bg-amber-700 text-white px-4 py-2 rounded-md text-sm"
               >
                 + Add New User
               </button>
               <button
-                onClick={() => navigate("/addworker")}
+                onClick={() => navigate("/admin/add-worker")}
                 className="bg-amber-700 text-white px-4 py-2 rounded-md text-sm"
               >
                 + Add New Worker
