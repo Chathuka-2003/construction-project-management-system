@@ -43,6 +43,7 @@ function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+
 function KindBadge({ kind }) {
   const map = { project: "bg-orange-100 text-orange-700", customer: "bg-emerald-100 text-emerald-700", admin: "bg-indigo-100 text-indigo-700" };
   const label = kind === "project" ? "Project" : kind === "customer" ? "Customer" : "Admin";
