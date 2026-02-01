@@ -77,11 +77,11 @@ function StatCard({ icon: Icon, title, value, color }) {
 
 function QuickActions({ navigate }) {
   const actions = [
-    { title: "New Project", icon: FileText, color: "blue", path: "/admin/projects/new" },
-    { title: "Assign Task", icon: ClipboardList, color: "purple", path: "/admin/tasks/assign" },
-    { title: "Add Worker", icon: UserPlus, color: "green", path: "/addworker" },
-    { title: "Add Staff", icon: Users, color: "orange", path: "/adduser" },
-    { title: "Generate Report", icon: FileBarChart, color: "indigo", path: "#" },
+    { title: "New Project", icon: FileText, color: "blue", path: "/admin/newprojects" },
+    { title: "Assign Task", icon: ClipboardList, color: "purple", path: "/admin/newtask" },
+    { title: "Add Worker", icon: UserPlus, color: "green", path: "/admin/add-worker" },
+    { title: "Register User", icon: Users, color: "orange", path: "/admin/register" },
+    
   ];
 
   const styles = {
