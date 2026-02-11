@@ -6,11 +6,19 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProjectResponseDTO {
-    public Long id;
-    public String title;
-    public String description;
-    public String status;
-    public String customerName;
-    public String managerName;
+    private Long id;
+
+    // ✅ frontend fields
+    private String name;
+    private String customer;   // customer display name
+    private String location;
+    private String description;
+    private String startDate;  // "YYYY-MM-DD"
+    private String status;     // "Planning", ...
+
+    // helpful IDs (optional for UI)
+    private Long customerId;
+    private Long managerId;
 }
