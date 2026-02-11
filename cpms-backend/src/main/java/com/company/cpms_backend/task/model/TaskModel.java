@@ -30,4 +30,5 @@ public class TaskModel {
     @ManyToOne
     @JoinColumn(name = "assigned_to")
     private UserModel assignedTo;
+
 }
