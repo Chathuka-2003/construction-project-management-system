@@ -1,16 +1,18 @@
 package com.company.cpms_backend.task.dto;
 
-import lombok.AllArgsConstructor;
+import com.company.cpms_backend.common.dto.UserMiniDTO;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class TaskResponseDTO {
-    public Long id;
-    public String title;
-    public int progress;
+    private Long id;
+    private String title;
+    private int progress;
+
+    private Long projectId;
+    private String projectTitle;
+
+    private UserMiniDTO assignedTo;
 }
