@@ -2,7 +2,6 @@ package com.company.cpms_backend.vehicle.model;
 
 import com.company.cpms_backend.enums.VehicleAssignmentStatus;
 import com.company.cpms_backend.project.model.ProjectModel;
-import com.company.cpms_backend.vehicle.model.VehicleModel;
 import com.company.cpms_backend.worker.model.WorkerModel;
 import jakarta.persistence.*;
 import lombok.*;
