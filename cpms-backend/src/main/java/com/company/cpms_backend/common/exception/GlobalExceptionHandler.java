@@ -12,7 +12,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Validation errors
+    // ✅ Validation errors (keeps your existing structure)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -23,22 +23,34 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
                         "success", false,
+                        "message", "Validation failed",
                         "errors", errors
                 ));
     }
 
-    // Runtime exceptions
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
+    // ✅ Custom not found (optional but very useful; doesn't affect others)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity
-                .badRequest()
+                .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "success", false,
                         "message", ex.getMessage()
                 ));
     }
 
-    // Fallback for other exceptions
+    // ✅ Runtime exceptions (same behavior, but uses 400 consistently)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "success", false,
+                        "message", ex.getMessage()
+                ));
+    }
+
+    // ✅ Fallback for other exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleOther(Exception ex) {
         return ResponseEntity
@@ -50,5 +62,3 @@ public class GlobalExceptionHandler {
                 ));
     }
 }
-
-
