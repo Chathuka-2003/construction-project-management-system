@@ -1,19 +1,22 @@
 package com.company.cpms_backend.user.dto;
 
+import com.company.cpms_backend.enums.Gender;
 import com.company.cpms_backend.enums.Role;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserResponseDTO {
-    public Long id;
-    public String name;
-    public String email;
-    public Role role;
-
+    private Long id;
+    private String name;
+    private String email;
+    private Role role;
+    private Gender gender;
+    private String contactNumber;
+    private String address;
+    private Double salary;
+    private LocalDateTime createdAt;
 }
