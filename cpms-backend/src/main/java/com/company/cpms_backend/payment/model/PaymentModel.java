@@ -35,6 +35,7 @@ public class PaymentModel {
     private LocalDate dueDate;
     private LocalDate paidDate;
 
+    // PayHere payment id (returned in notify_url)
     private String gatewayPaymentId;
 
     @Column(updatable = false)
