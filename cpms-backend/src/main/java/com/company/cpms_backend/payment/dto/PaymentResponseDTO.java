@@ -14,4 +14,3 @@ public class PaymentResponseDTO {
     public String paidDate;
     public String createdAt;
 }
-
