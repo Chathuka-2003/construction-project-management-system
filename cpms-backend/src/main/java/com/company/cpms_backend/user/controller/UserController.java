@@ -1,7 +1,6 @@
 package com.company.cpms_backend.user.controller;
 
-import com.company.cpms_backend.user.dto.UserDTO;
-import com.company.cpms_backend.user.dto.UserResponseDTO;
+import com.company.cpms_backend.user.dto.*;
 import com.company.cpms_backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/admin")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserDTO dto) {
@@ -49,5 +48,35 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         UserResponseDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<UserResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UserStatusUpdateDTO dto
+    ) {
+        UserResponseDTO response = userService.updateStatus(id, dto.getStatus());
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<String> changePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody UserPasswordChangeDTO dto
+    ) {
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body("New password and confirm password do not match");
+        }
+        userService.changePassword(id, dto.getCurrentPassword(), dto.getNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserUpdateDTO dto
+    ) {
+        UserResponseDTO response = userService.updateUser(id, dto);
+        return ResponseEntity.ok(response);
     }
 }

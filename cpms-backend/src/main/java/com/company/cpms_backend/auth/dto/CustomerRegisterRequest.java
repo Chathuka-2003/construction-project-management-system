@@ -30,7 +30,4 @@ public class CustomerRegisterRequest {
     @NotNull(message = "Gender is required")
     private Gender gender;
 
-    @NotNull(message = "Salary is required")
-    @Min(value = 0, message = "Salary must be greater than or equal to 0")
-    private Double salary;
 }

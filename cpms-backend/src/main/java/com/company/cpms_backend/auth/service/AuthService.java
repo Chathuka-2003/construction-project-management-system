@@ -39,7 +39,6 @@ public class AuthService {
         user.setContactNumber(dto.getContactNumber());
         user.setAddress(dto.getAddress());
         user.setGender(dto.getGender());
-        user.setSalary(dto.getSalary()); // Added salary field
 
         UserModel savedUser = userRepo.save(user);
 
@@ -52,6 +51,7 @@ public class AuthService {
                 savedUser.getContactNumber(),
                 savedUser.getAddress(),
                 savedUser.getSalary(),
+                savedUser.getStatus(),
                 savedUser.getCreatedAt()
         );
     }
@@ -88,6 +88,7 @@ public class AuthService {
                 savedUser.getContactNumber(),
                 savedUser.getAddress(),
                 savedUser.getSalary(),
+                savedUser.getStatus(),
                 savedUser.getCreatedAt()
         );
     }
@@ -101,6 +102,6 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        return new AuthResponse(token, user.getRole().name(), user.getEmail());
+        return new AuthResponse(token, user.getRole().name(), user.getEmail() ,user.getId(),user.getName());
     }
 }

@@ -1,4 +1,4 @@
-package com.company.cpms_backend.appoinment.model;
+package com.company.cpms_backend.appointment.model;
 
 import com.company.cpms_backend.enums.AppointmentStatus;
 import com.company.cpms_backend.user.model.UserModel;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppoinmentModel {
+public class AppointmentModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +28,10 @@ public class AppoinmentModel {
 
     @ManyToOne
     @JoinColumn(name = "handled_by")
-    private UserModel handledBy;  // staff or admin
+    private UserModel handledBy; // staff or admin
 
     private LocalDateTime appointmentDate;
+
     private String purpose;
 
     @Enumerated(EnumType.STRING)
