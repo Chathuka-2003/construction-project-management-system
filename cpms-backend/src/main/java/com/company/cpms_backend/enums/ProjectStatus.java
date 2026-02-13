@@ -5,5 +5,6 @@ public enum ProjectStatus {
     DESIGN,
     CONSTRUCTION,
     FINISHING,
-    HANDOVER
+    HANDOVER,
+    ON_HOLD
 }

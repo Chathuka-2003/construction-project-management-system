@@ -1,16 +1,16 @@
 package com.company.cpms_backend.payment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class PaymentResponseDTO {
     public Long id;
+    public Long projectId;
+    public String invoiceNo;
     public Double amount;
     public String status;
+    public String dueDate;
+    public String paidDate;
+    public String createdAt;
 }

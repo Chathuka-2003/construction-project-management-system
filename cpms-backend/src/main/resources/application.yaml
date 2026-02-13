@@ -9,9 +9,27 @@ spring:
       ddl-auto: update
     show-sql: true
 
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 server:
   port: 8080
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: 50MB
+    connection-timeout: 300000
 
 jwt:
   secret: cpms-secure-jwt-secret-key-2026-production-very-strong-key-64bytes
   expiration: 86400000
+
+payhere:
+  merchantId: "1233614"
+  merchantSecret: "NDE0OTYyNjgxMTkwMjY3Njg2NTIyMDE0ODkxMDUyMzIwOTA1NjM0"
+  returnUrl: "http://localhost:5173/customer/payments"
+  cancelUrl: "http://localhost:5173/customer/payments"
+  notifyUrl: "http://localhost:8080/api/payments/payhere/notify"

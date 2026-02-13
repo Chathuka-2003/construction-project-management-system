@@ -16,13 +16,13 @@ public class FileStorageController {
 
     private final FileStorageService fileStorageService;
 
-    @PostMapping("/upload/chat/{projectId}")
+    @PostMapping(value="/upload/chat/{projectId}", consumes = "multipart/form-data")
     public FilestorageModel uploadChatFile(@PathVariable Long projectId,
                                            @RequestParam("file") MultipartFile file,
                                            Principal principal) {
-
         return fileStorageService.uploadChatFile(projectId, file, principal.getName());
     }
+
     @GetMapping("/project/{projectId}")
     public List<FilestorageModel> getProjectFiles(@PathVariable Long projectId) {
         return fileStorageService.getFilesByProject(projectId);

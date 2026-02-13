@@ -1,6 +1,7 @@
 package com.company.cpms_backend.user.dto;
 
 import com.company.cpms_backend.enums.Gender;
+import com.company.cpms_backend.enums.UserStatus;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,9 @@ public class UserRegisterDTO {
 
     @NotNull(message = "Gender is required")
     private Gender gender;
+
+    @NotNull(message = "Status is required")
+    private UserStatus status;
 
     @NotNull(message = "Salary is required")
     @Min(value = 0, message = "Salary must be greater than or equal to 0")

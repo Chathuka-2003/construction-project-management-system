@@ -1,241 +1,516 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
+import {
+  CalendarClock,
+  Filter,
+  RefreshCw,
+  Search,
+  Plus,
+  X,
+  User2,
+  ClipboardList,
+  CheckCircle2,
+  XCircle,
+  BadgeCheck,
+} from "lucide-react";
+import { getCustomerIdFromStorage } from "../../util/auth";
 
-const Appointments = () => {
-  const navigate = useNavigate();
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
-  const [form, setForm] = useState({
-    project: "",
-    location: "",
-    worker: "",
-    startDate: "",
-    endDate: "",
+const api = axios.create({ baseURL: BASE_URL });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+const STATUS = ["REQUESTED", "APPROVED", "REJECTED", "COMPLETED"];
+
+function cx(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return "-";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString([], {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function statusBadge(s) {
+  switch (String(s || "").toUpperCase()) {
+    case "APPROVED":
+      return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+    case "REJECTED":
+      return "bg-red-50 text-red-700 ring-red-200";
+    case "COMPLETED":
+      return "bg-indigo-50 text-indigo-700 ring-indigo-200";
+    case "REQUESTED":
+    default:
+      return "bg-amber-50 text-amber-700 ring-amber-200";
+  }
+}
+
+function statusIcon(s) {
+  switch (String(s || "").toUpperCase()) {
+    case "APPROVED":
+      return <CheckCircle2 className="h-4 w-4" />;
+    case "REJECTED":
+      return <XCircle className="h-4 w-4" />;
+    case "COMPLETED":
+      return <BadgeCheck className="h-4 w-4" />;
+    default:
+      return <ClipboardList className="h-4 w-4" />;
+  }
+}
+
+function toBackendLocalDateTime(datetimeLocalValue) {
+  if (!datetimeLocalValue) return null;
+  return datetimeLocalValue.length === 16 ? `${datetimeLocalValue}:00` : datetimeLocalValue;
+}
+
+function initialForm(customerId) {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 30);
+  const pad = (n) => String(n).padStart(2, "0");
+  const v = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(
+    now.getHours()
+  )}:${pad(now.getMinutes())}`;
+
+  return {
+    customerId: customerId || "",
+    handledById: "",
+    appointmentDate: v,
     purpose: "",
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
   };
+}
 
-  const handleSubmit = () => {
-    if (
-      !form.project ||
-      !form.location ||
-      !form.worker ||
-      !form.startDate ||
-      !form.endDate ||
-      !form.purpose
-    ) {
-      toast.error("Please fill all fields");
+export default function Appointments() {
+  const customerId = useMemo(() => getCustomerIdFromStorage(), []);
+
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+  const [err, setErr] = useState("");
+
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sort, setSort] = useState("NEWEST");
+
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(() => initialForm(customerId));
+
+  // ✅ Admin dropdown data
+  const [admins, setAdmins] = useState([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+
+  useEffect(() => {
+    setForm((f) => ({ ...f, customerId: customerId || "" }));
+  }, [customerId]);
+
+  const load = useCallback(async () => {
+    if (!customerId) {
+      setErr("Customer ID not found. Please login again.");
       return;
     }
+    setLoading(true);
+    setErr("");
+    try {
+      const res = await api.get(`/api/appointments/customer/${customerId}`);
+      const arr = Array.isArray(res.data) ? res.data : [];
+      setItems(arr);
+    } catch (e) {
+      setErr(e?.response?.data?.message || e?.response?.data || e?.message || "Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  }, [customerId]);
 
-    toast.success("Appointment booked successfully!");
-    setForm({
-      project: "",
-      location: "",
-      worker: "",
-      startDate: "",
-      endDate: "",
-      purpose: "",
-    });
+  // ✅ Load admins from /api/users and filter ADMIN (logic only for dropdown UI)
+  const loadAdmins = useCallback(async () => {
+    setLoadingAdmins(true);
+    try {
+      const res = await api.get("/api/users");
+      const arr = Array.isArray(res.data) ? res.data : [];
+      setAdmins(arr.filter((u) => String(u.role) === "ADMIN"));
+    } catch {
+      toast.error("Failed to load admins");
+    } finally {
+      setLoadingAdmins(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+    loadAdmins();
+  }, [load, loadAdmins]);
+
+  const filtered = useMemo(() => {
+    let arr = [...items];
+
+    if (statusFilter !== "ALL") {
+      arr = arr.filter((a) => String(a.status) === String(statusFilter));
+    }
+
+    const needle = query.trim().toLowerCase();
+    if (needle) {
+      arr = arr.filter((a) => {
+        const purpose = String(a.purpose || "").toLowerCase();
+        const handler = String(a.handledByName || "").toLowerCase();
+        const st = String(a.status || "").toLowerCase();
+        return purpose.includes(needle) || handler.includes(needle) || st.includes(needle);
+      });
+    }
+
+    const asTime = (a) => {
+      const t = new Date(a?.createdAt || a?.appointmentDate || 0).getTime();
+      return Number.isFinite(t) ? t : 0;
+    };
+    const apptTime = (a) => {
+      const t = new Date(a?.appointmentDate || 0).getTime();
+      return Number.isFinite(t) ? t : 0;
+    };
+
+    if (sort === "NEWEST") arr.sort((a, b) => asTime(b) - asTime(a));
+    if (sort === "OLDEST") arr.sort((a, b) => asTime(a) - asTime(b));
+    if (sort === "UPCOMING") arr.sort((a, b) => apptTime(a) - apptTime(b));
+
+    return arr;
+  }, [items, query, statusFilter, sort]);
+
+  const stats = useMemo(() => {
+    const total = items.length;
+    const requested = items.filter((x) => x.status === "REQUESTED").length;
+    const approved = items.filter((x) => x.status === "APPROVED").length;
+    const rejected = items.filter((x) => x.status === "REJECTED").length;
+    const completed = items.filter((x) => x.status === "COMPLETED").length;
+    return { total, requested, approved, rejected, completed };
+  }, [items]);
+
+  const resetForm = useCallback(() => {
+    setForm(initialForm(customerId));
+  }, [customerId]);
+
+  const submit = async () => {
+    if (!customerId) return toast.error("Customer id missing");
+    if (!form.handledById) return toast.error("Please select an Admin");
+    if (!form.appointmentDate) return toast.error("Please select appointment date & time");
+    if (!form.purpose.trim()) return toast.error("Purpose is required");
+
+    const payload = {
+      customerId: Number(customerId),
+      handledById: Number(form.handledById),
+      appointmentDate: toBackendLocalDateTime(form.appointmentDate),
+      purpose: form.purpose.trim(),
+    };
+
+    try {
+      setSaving(true);
+      const res = await api.post("/api/appointments", payload);
+      toast.success("Appointment requested ✅");
+      setOpen(false);
+      resetForm();
+
+      const created = res.data;
+      setItems((prev) => [created, ...prev]);
+    } catch (e) {
+      toast.error(e?.response?.data?.message || e?.response?.data || e?.message || "Request failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      {/* ================= LEFT SIDE ================= */}
-      <div className="space-y-6">
-        {/* BOOK APPOINTMENT */}
-        <div className="bg-[#7b736d] rounded-xl p-6 text-white">
-          <h2 className="mb-4 text-lg font-semibold">Book Appointment</h2>
+    <div className="h-full min-h-0">
+      {/* Top header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+        <div>
+          <div className="inline-flex items-center gap-2 text-sm font-semibold text-orange-600">
+            <span className="h-2 w-2 rounded-full bg-orange-500" />
+            Customer Portal
+          </div>
+          <h1 className="mt-1 text-2xl font-bold text-gray-900">Appointments</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Request appointments and track approval status in real time.
+          </p>
+        </div>
 
-          <div className="space-y-3 text-sm">
-            <select
-              name="project"
-              value={form.project}
-              onChange={handleChange}
-              className="w-full bg-[#6b625b] rounded px-3 py-2"
-            >
-              <option value="">Choose project</option>
-              <option>Green Villa Project</option>
-              <option>Modern Office Complex</option>
-            </select>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={load}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </button>
 
-            <select
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              className="w-full bg-[#6b625b] rounded px-3 py-2"
-            >
-              <option value="">Select location</option>
-              <option>Colombo 07</option>
-              <option>Colombo 03</option>
-            </select>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+          >
+            <Plus className="h-4 w-4" />
+            Request Appointment
+          </button>
+        </div>
+      </div>
 
-            <select
-              name="worker"
-              value={form.worker}
-              onChange={handleChange}
-              className="w-full bg-[#6b625b] rounded px-3 py-2"
-            >
-              <option value="">Choose worker</option>
-              <option>John Anderson</option>
-              <option>Sarah Williams</option>
-              <option>Michael Chen</option>
-            </select>
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <StatCard label="Total" value={stats.total} variant="neutral" />
+        <StatCard label="Requested" value={stats.requested} variant="amber" />
+        <StatCard label="Approved" value={stats.approved} variant="emerald" />
+        <StatCard label="Rejected" value={stats.rejected} variant="red" />
+        <StatCard label="Completed" value={stats.completed} variant="indigo" />
+      </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="date"
-                name="startDate"
-                value={form.startDate}
-                onChange={handleChange}
-                className="bg-[#6b625b] rounded px-3 py-2"
-              />
-              <input
-                type="date"
-                name="endDate"
-                value={form.endDate}
-                onChange={handleChange}
-                className="bg-[#6b625b] rounded px-3 py-2"
-              />
-            </div>
-
+      {/* Controls */}
+      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 mb-6">
+        <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-100">
+            <Search className="h-4 w-4 text-gray-400" />
             <input
-              name="purpose"
-              value={form.purpose}
-              onChange={handleChange}
-              placeholder="Enter purpose of appointment"
-              className="w-full bg-[#6b625b] rounded px-3 py-2"
-            />
-
-            <button
-              onClick={handleSubmit}
-              className="w-full py-2 text-sm bg-orange-500 rounded hover:bg-orange-600"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-
-        {/* HISTORY */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3 text-[#3b342f]">History</h3>
-
-          <div className="space-y-3">
-            <HistoryCard
-              title="Green Villa Project"
-              person="John Anderson"
-              date="12/15/2024 - 12/20/2024"
-              purpose="Foundation inspection"
-              status="Completed"
-              color="green"
-            />
-
-            <HistoryCard
-              title="Modern Office Complex"
-              person="Sarah Williams"
-              date="12/22/2024 - 12/28/2024"
-              purpose="Electrical work review"
-              status="Pending"
-              color="yellow"
-            />
-
-            <HistoryCard
-              title="Green Villa Project"
-              person="Michael Chen"
-              date="1/3/2025 - 1/5/2025"
-              purpose="Plumbing inspection"
-              status="Cancelled"
-              color="red"
+              className="w-full bg-transparent text-sm outline-none"
+              placeholder="Search by purpose, admin name, status..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-        </div>
-      </div>
 
-      {/* ================= RIGHT SIDE ================= */}
-      <div className="space-y-6">
-        {/* ONGOING PROJECT */}
-        <div className="bg-[#7b736d] rounded-xl p-6 text-white">
-          <h2 className="mb-4 text-lg font-semibold">My Ongoing Projects</h2>
-
-          <div className="space-y-3 text-sm">
-            <Field label="Project Title" value="Green Villa Project" />
-            <Field label="Status" value="In Progress" />
-            <Field label="Manager" value="John Anderson" />
-
-            <div>
-              <p className="mb-1 text-xs">Progress</p>
-              <div className="w-full h-2 rounded-full bg-black/20">
-                <div className="bg-orange-500 h-2 rounded-full w-[65%]" />
-              </div>
-              <p className="mt-1 text-xs">65%</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <select
+                className="bg-transparent text-sm outline-none"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="ALL">All status</option>
+                {STATUS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* ✅ OPEN CHAT BUTTON */}
-            <button
-              onClick={() => navigate("/customer/messages")}
-              className="w-full py-2 text-sm bg-orange-500 rounded hover:bg-orange-600"
+            <select
+              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
             >
-              Open Chat
-            </button>
+              <option value="NEWEST">Sort: Newest</option>
+              <option value="OLDEST">Sort: Oldest</option>
+              <option value="UPCOMING">Sort: Upcoming</option>
+            </select>
           </div>
         </div>
-
-        {/* CONFIRMED PROJECTS */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3 text-[#3b342f]">
-            Confirmed Projects
-          </h3>
-
-          <ConfirmedCard
-            title="Green Villa Project"
-            location="123 Green Avenue, Colombo 07"
-            manager="John Anderson"
-            next="1/10/2025"
-          />
-
-          <ConfirmedCard
-            title="Modern Office Complex"
-            location="45 Business Park, Colombo 03"
-            manager="Sarah Williams"
-            next="1/15/2025"
-          />
-        </div>
       </div>
+
+      {/* Error / Loading */}
+      {err && (
+        <div className="mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-700 ring-1 ring-red-100">
+          {String(err)}
+        </div>
+      )}
+      {loading && (
+        <div className="mb-4 rounded-2xl bg-white p-4 text-sm text-gray-600 ring-1 ring-gray-200">
+          Loading appointments...
+        </div>
+      )}
+
+      {/* List */}
+      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="p-8 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-orange-50 text-orange-600">
+              <CalendarClock className="h-6 w-6" />
+            </div>
+            <div className="mt-3 font-semibold text-gray-900">No appointments found</div>
+            <div className="mt-1 text-sm text-gray-500">
+              Create a request to get started.
+            </div>
+          </div>
+        ) : (
+          <div className="divide-y">
+            {filtered.map((a) => (
+              <div key={a.id} className="p-5 hover:bg-gray-50 transition">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-gray-100 text-gray-700">
+                        {statusIcon(a.status)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-gray-900 truncate">
+                          {a.purpose || "Appointment"}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {fmtDateTime(a.appointmentDate)}
+                        </div>
+                      </div>
+
+                      <span
+                        className={cx(
+                          "ml-auto md:ml-3 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1",
+                          statusBadge(a.status)
+                        )}
+                      >
+                        {a.status}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-2 text-sm text-gray-600">
+                      <div>
+                        <span className="text-gray-500">Requested at:</span>{" "}
+                        <span className="font-medium text-gray-800">{fmtDateTime(a.createdAt)}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Handled by:</span>{" "}
+                        <span className="font-medium text-gray-800">
+                          {a.handledByName ? `${a.handledByName} (ID: ${a.handledById})` : `ID: ${a.handledById}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-500 md:text-right">
+                    {a.status === "REQUESTED" && "Waiting for approval"}
+                    {a.status === "APPROVED" && "Approved ✅"}
+                    {a.status === "REJECTED" && "Rejected ❌"}
+                    {a.status === "COMPLETED" && "Completed 🎉"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Create Modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Request Appointment</h2>
+                <p className="text-sm text-gray-500">Status will be REQUESTED until admin approves.</p>
+              </div>
+              <button
+                type="button"
+                className="rounded-xl border border-gray-200 p-2 hover:bg-gray-50"
+                onClick={() => {
+                  setOpen(false);
+                  resetForm();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              {/* Admin */}
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Select Admin</label>
+
+                <div className="mt-2 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-100">
+                  <User2 className="h-4 w-4 text-gray-400" />
+                  <select
+                    className="w-full bg-transparent text-sm outline-none"
+                    value={form.handledById}
+                    onChange={(e) => setForm((p) => ({ ...p, handledById: e.target.value }))}
+                  >
+                    <option value="">{loadingAdmins ? "Loading admins..." : "Select Admin"}</option>
+                    {admins.map((ad) => (
+                      <option key={ad.id} value={ad.id}>
+                        {ad.name} (ID: {ad.id})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  Admin will review and approve/reject your request.
+                </p>
+              </div>
+
+              {/* Date */}
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Appointment Date & Time</label>
+                <input
+                  type="datetime-local"
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                  value={form.appointmentDate}
+                  onChange={(e) => setForm((p) => ({ ...p, appointmentDate: e.target.value }))}
+                />
+              </div>
+
+              {/* Purpose */}
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Purpose</label>
+                <textarea
+                  rows={3}
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                  placeholder="Explain what you need (e.g., discuss timeline, payment plan, materials...)"
+                  value={form.purpose}
+                  onChange={(e) => setForm((p) => ({ ...p, purpose: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t px-5 py-4 bg-gray-50">
+              <button
+                type="button"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+                onClick={() => {
+                  setOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={submit}
+                className="rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
+              >
+                {saving ? "Submitting..." : "Submit Request"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-/* ===== SMALL COMPONENTS ===== */
+/* ---------- UI: Better Stat Cards ---------- */
+function StatCard({ label, value, variant = "neutral" }) {
+  const styles = {
+    neutral: "from-slate-900 to-slate-700 text-white",
+    amber: "from-amber-500 to-orange-500 text-white",
+    emerald: "from-emerald-500 to-teal-500 text-white",
+    red: "from-rose-500 to-red-500 text-white",
+    indigo: "from-indigo-500 to-violet-500 text-white",
+  };
 
-const Field = ({ label, value }) => (
-  <div>
-    <p className="text-xs text-gray-300">{label}</p>
-    <div className="bg-[#6b625b] px-3 py-2 rounded">{value}</div>
-  </div>
-);
-
-const HistoryCard = ({ title, person, date, purpose, status, color }) => (
-  <div className="bg-[#7b736d] p-4 rounded text-white text-sm">
-    <div className="flex justify-between">
-      <h4 className="font-semibold">{title}</h4>
-      <span className={`text-${color}-400 text-xs`}>{status}</span>
+  return (
+    <div className={cx("rounded-2xl p-4 shadow-sm bg-gradient-to-br", styles[variant])}>
+      <div className="text-sm opacity-90">{label}</div>
+      <div className="mt-1 text-2xl font-bold">{value}</div>
     </div>
-    <p>👤 {person}</p>
-    <p>📅 {date}</p>
-    <p className="text-orange-300">Purpose: {purpose}</p>
-  </div>
-);
-
-const ConfirmedCard = ({ title, location, manager, next }) => (
-  <div className="bg-[#7b736d] p-4 rounded text-white text-sm mb-3">
-    <h4 className="font-semibold">{title}</h4>
-    <p>📍 {location}</p>
-    <p>👤 {manager}</p>
-    <p>⏰ Next: {next}</p>
-  </div>
-);
-
-export default Appointments;
+  );
+}

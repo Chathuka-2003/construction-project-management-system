@@ -24,6 +24,18 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    // ✅ IMPORTANT: skip JWT filter for websocket + sockjs endpoints
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // SockJS calls /ws/info and other /ws/** endpoints without auth headers sometimes.
+        if (path != null && path.startsWith("/ws")) return true;
+
+        // Also skip preflight requests
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -65,4 +77,3 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-

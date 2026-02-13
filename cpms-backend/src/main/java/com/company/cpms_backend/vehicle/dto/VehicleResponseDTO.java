@@ -1,16 +1,23 @@
 package com.company.cpms_backend.vehicle.dto;
 
-import lombok.AllArgsConstructor;
+import com.company.cpms_backend.enums.VehicleCondition;
+import com.company.cpms_backend.enums.VehicleStatus;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class VehicleResponseDTO {
-    public Long id;
-    public String type;
-    public String regNumber;
+    private Long id;
+    private String regNumber;
+    private String type;
+    private String fuel;
+    private String capacity;
+    private String machine;
+    private VehicleCondition condition;
+    private VehicleStatus status;
+    private boolean active;
+    private LocalDateTime createdAt;
 }

@@ -1,12 +1,15 @@
 package com.company.cpms_backend.worker.dto;
 
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class WorkerCreateDTO {
-    public String name;
-    public String skill;
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String skill;
 }
