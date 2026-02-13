@@ -17,9 +17,9 @@ jwt:
   expiration: 86400000
 
 
-  payhere:
-    merchantId: "1233614"
-    merchantSecret: "NDE0OTYyNjgxMTkwMjY3Njg2NTIyMDE0ODkxMDUyMzIwOTA1NjM0"
-    returnUrl: "http://localhost:8080/customer-payments.html"
-    cancelUrl: "http://localhost:8080/customer-payments.html"
-    notifyUrl: "http://localhost:8080/api/payments/payhere/notify"
+payhere:
+  merchantId: "1233614"
+  merchantSecret: "NDE0OTYyNjgxMTkwMjY3Njg2NTIyMDE0ODkxMDUyMzIwOTA1NjM0"
+  returnUrl: "http://localhost:5173/customer/payments"
+  cancelUrl: "http://localhost:5173/customer/payments"
+  notifyUrl: "http://localhost:8080/api/payments/payhere/notify"

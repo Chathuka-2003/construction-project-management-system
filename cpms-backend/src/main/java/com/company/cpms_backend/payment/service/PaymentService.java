@@ -5,6 +5,7 @@ import com.company.cpms_backend.enums.PaymentStatus;
 import com.company.cpms_backend.enums.Role;
 import com.company.cpms_backend.payment.dto.PaymentCreateDTO;
 import com.company.cpms_backend.payment.dto.PaymentResponseDTO;
+import com.company.cpms_backend.payment.dto.PaymentUpdateDTO;
 import com.company.cpms_backend.payment.model.PaymentModel;
 import com.company.cpms_backend.payment.repository.PaymentRepository;
 import com.company.cpms_backend.project.model.ProjectModel;
@@ -66,7 +67,7 @@ public class PaymentService {
         p.setInvoiceNo(invoiceNo);
 
         if (dto.dueDate != null && !dto.dueDate.isBlank()) {
-            p.setDueDate(LocalDate.parse(dto.dueDate.trim()));
+            p.setDueDate(LocalDate.parse(dto.dueDate.trim())); // must be YYYY-MM-DD
         }
 
         return toDto(paymentRepository.save(p));
@@ -108,6 +109,111 @@ public class PaymentService {
         PaymentModel p = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
         return toDto(p);
+    }
+
+    // ✅ Update invoice fields (amount / invoiceNo / dueDate) without requiring projectId
+    public PaymentResponseDTO updateInvoice(String companyEmail, Long paymentId, PaymentUpdateDTO dto) {
+
+        UserModel actor = userRepository.findByEmail(companyEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        switch (actor.getRole()) {
+            case SUPERADMIN, ADMIN, MANAGER, ENGINEER, OTHER_STAFF -> {}
+            default -> throw new AccessDeniedException("Not allowed");
+        }
+
+        PaymentModel p = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
+
+        // amount
+        if (dto != null && dto.amount != null) {
+            if (dto.amount <= 0) throw new ValidationException("amount must be > 0");
+            p.setAmount(dto.amount);
+        }
+
+        // invoiceNo (unique)
+        if (dto != null && dto.invoiceNo != null) {
+            String inv = dto.invoiceNo.trim();
+
+            if (inv.isBlank()) {
+                // allow clearing invoiceNo? (optional). if not needed, remove this block.
+                p.setInvoiceNo(null);
+            } else {
+                paymentRepository.findByInvoiceNo(inv).ifPresent(existing -> {
+                    if (!existing.getId().equals(p.getId())) {
+                        throw new ValidationException("invoiceNo already exists: " + inv);
+                    }
+                });
+                p.setInvoiceNo(inv);
+            }
+        }
+
+        // dueDate
+        if (dto != null && dto.dueDate != null) {
+            String s = dto.dueDate.trim();
+            if (s.isBlank()) {
+                p.setDueDate(null);
+            } else {
+                // must be YYYY-MM-DD
+                p.setDueDate(LocalDate.parse(s));
+            }
+        }
+
+        return toDto(paymentRepository.save(p));
+    }
+
+    // ✅ Delete invoice
+    public void deleteInvoice(String companyEmail, Long paymentId) {
+
+        UserModel actor = userRepository.findByEmail(companyEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        switch (actor.getRole()) {
+            case SUPERADMIN, ADMIN, MANAGER, ENGINEER, OTHER_STAFF -> {}
+            default -> throw new AccessDeniedException("Not allowed");
+        }
+
+        PaymentModel p = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
+
+        paymentRepository.delete(p);
+    }
+
+    // ✅ Manual status update
+    public PaymentResponseDTO updateStatus(String companyEmail, Long paymentId, String status) {
+
+        UserModel actor = userRepository.findByEmail(companyEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        switch (actor.getRole()) {
+            case SUPERADMIN, ADMIN, MANAGER, ENGINEER, OTHER_STAFF -> {}
+            default -> throw new AccessDeniedException("Not allowed");
+        }
+
+        PaymentModel p = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ValidationException("Payment not found: " + paymentId));
+
+        if (status == null || status.isBlank()) {
+            throw new ValidationException("status is required");
+        }
+
+        PaymentStatus newStatus;
+        try {
+            newStatus = PaymentStatus.valueOf(status.trim().toUpperCase());
+        } catch (Exception e) {
+            throw new ValidationException("Invalid status. Use PENDING, PAID, FAILED");
+        }
+
+        p.setStatus(newStatus);
+
+        // if PAID set paidDate, else clear
+        if (newStatus == PaymentStatus.PAID) {
+            if (p.getPaidDate() == null) p.setPaidDate(LocalDate.now());
+        } else {
+            p.setPaidDate(null);
+        }
+
+        return toDto(paymentRepository.save(p));
     }
 
     // -------- Helpers --------
