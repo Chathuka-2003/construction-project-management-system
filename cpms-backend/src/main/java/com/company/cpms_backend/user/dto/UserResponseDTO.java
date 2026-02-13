@@ -2,6 +2,7 @@ package com.company.cpms_backend.user.dto;
 
 import com.company.cpms_backend.enums.Gender;
 import com.company.cpms_backend.enums.Role;
+import com.company.cpms_backend.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,5 +19,6 @@ public class UserResponseDTO {
     private String contactNumber;
     private String address;
     private Double salary;
+    private UserStatus status;
     private LocalDateTime createdAt;
 }

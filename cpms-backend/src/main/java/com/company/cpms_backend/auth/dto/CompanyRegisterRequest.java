@@ -2,6 +2,10 @@ package com.company.cpms_backend.auth.dto;
 
 import com.company.cpms_backend.enums.Gender;
 import com.company.cpms_backend.enums.Role;
+import com.company.cpms_backend.enums.UserStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;

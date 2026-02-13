@@ -2,6 +2,7 @@ package com.company.cpms_backend.user.dto;
 
 import com.company.cpms_backend.enums.Gender;
 import com.company.cpms_backend.enums.Role;
+import com.company.cpms_backend.enums.UserStatus;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -11,28 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class UserDTO {
-//    @NotBlank
-//    public String name;
-//
-//    @Email
-//    @NotBlank
-//    public String email;
-//
-//    @NotBlank
-//    @Size(min = 6)
-//    public String password;
-//
-//    @NonNull
-//    public Role role;  // ADMIN, MANAGER, ENGINEER, CUSTOMER
-//
-//    @NotBlank
-//    public String contactNumber;
-//
-//    @NotBlank
-//    public String address;
-//
-//    @NotNull
-//    public Gender gender;
+
     @NotBlank(message = "Name is required")
     private String name;
 
@@ -56,6 +36,9 @@ public class UserDTO {
 
     @NotNull(message = "Gender is required")
     private Gender gender;
+
+    @NotNull(message = "Status is required")
+    private UserStatus status;
 
     @NotNull(message = "Salary is required")
     @Min(value = 0, message = "Salary must be greater than or equal to 0")
