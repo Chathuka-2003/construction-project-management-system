@@ -1,17 +1,12 @@
 package com.company.cpms_backend.payment.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class PaymentCreateDTO {
-    @NotNull
-    public Long projectId;
+public class PaymentUpdateDTO {
 
-    @NotNull
-    public Double amount;
-
+    public Double amount;      // optional but we’ll validate in service
     public String invoiceNo;   // optional
     public String dueDate;     // optional "YYYY-MM-DD"
 }
