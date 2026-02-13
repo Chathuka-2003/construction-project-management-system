@@ -1,124 +1,128 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { HardHat } from "lucide-react";
+import { ArrowLeft, Sparkles, User, Wrench } from "lucide-react";
+import workerService from "../../services/workerService";
 
-export default function AddWorkerform() {
-  const [formData, setFormData] = useState({
-    workerName: "",
-    workerId: "",
-    phoneNumber: "",
-    address: "",
-    jobRole: "",
-    dailyRate: "",
-  });
+function cx(...c) {
+  return c.filter(Boolean).join(" ");
+}
 
-  // Handle input change
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+export default function AddWorkerForm() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", skill: "" });
+  const [loading, setLoading] = useState(false);
 
-  // Validation + Submit
-  const handleSubmit = (e) => {
+  const errors = useMemo(() => {
+    const e = {};
+    if (!form.name.trim() || form.name.trim().length < 3) e.name = "Name must be at least 3 chars.";
+    if (!form.skill.trim() || form.skill.trim().length < 2) e.skill = "Skill is required.";
+    return e;
+  }, [form]);
+
+  const isValid = Object.keys(errors).length === 0;
+
+  async function onSubmit(e) {
     e.preventDefault();
+    if (!isValid) return toast.error("Fix errors first.");
 
-    const requiredFields = [
-      "workerName",
-      "workerId",
-      "phoneNumber",
-      "address",
-      "email",
-      "password",
-      "jobRole",
-      "dailyRate",
-      "gender",
-    ];
-
-    // Check empty fields
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        toast.error("Please fill all required fields!");
-        return;
-      }
+    try {
+      setLoading(true);
+      await workerService.create({ name: form.name.trim(), skill: form.skill.trim() });
+      toast.success("Worker created!");
+      navigate("/admin/workers"); // change route
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Create failed");
+    } finally {
+      setLoading(false);
     }
-
-    // If valid
-    console.log("Submitted Worker Data:", formData);
-    toast.success("Worker added successfully!");
-
-    // Clear form
-    setFormData({
-      workerName: "",
-     email:"",
-     password:"",
-      phoneNumber: "",
-      address: "",
-      jobRole: "",
-      dailyRate: "",
-    });
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-amber-50 p-6">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-lg">
-        
-        <h2 className="text-2xl font-bold text-amber-600 mb-6 flex items-center gap-2">
-          <HardHat /> Add New Worker
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          <input name="workerName" value={formData.workerName} onChange={handleChange}
-            placeholder="Worker Name" className="input" />
-             <input name="address" value={formData.address} onChange={handleChange}
-            placeholder="Address" className="input" />
-
-          
-
-          <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange}
-            placeholder="Phone Number" className="input" />
-
-          <input name="address" value={formData.address} onChange={handleChange}
-            placeholder="Address" className="input" />
-
-             <input name="email" value={formData.email} onChange={handleChange}
-            placeholder="Email" className="input" />
-
-             <input name="password" value={formData.address} onChange={handleChange}
-            placeholder="Address" className="input" />
-
-          <input name="jobRole" value={formData.jobRole} onChange={handleChange}
-            placeholder="Job Role (e.g. Electrician)" className="input" />
-
-          <input name="dailyRate" value={formData.dailyRate} onChange={handleChange}
-            placeholder="Daily Rate (LKR)" className="input" />
-
-          <button
-            type="submit"
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition"
-          >
-            Add Worker
-          </button>
-
-        </form>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl" />
       </div>
 
-      {/* Shared input styling */}
-      <style>
-        {`
-          .input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-          }
-          .input:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 1px #f59e0b;
-          }
-        `}
-      </style>
+      <div className="relative p-6 md:p-8 space-y-6">
+        <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20 flex items-center justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-bold text-white/80 ring-1 ring-white/10">
+              <Sparkles size={16} /> Admin • Workers
+            </div>
+            <h1 className="mt-4 text-3xl font-extrabold">Add Worker</h1>
+            <p className="mt-2 text-sm text-white/60">Creates a record in workers table.</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 rounded-2xl bg-white/5 px-5 py-3 text-sm font-extrabold text-white/85 ring-1 ring-white/10 hover:bg-white/10"
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+        </div>
+
+        <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20">
+          <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Worker Name" icon={<User size={18} />} error={errors.name}>
+              <input
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                className={inputClass(!!errors.name)}
+              />
+            </Field>
+
+            <Field label="Skill" icon={<Wrench size={18} />} error={errors.skill}>
+              <input
+                value={form.skill}
+                onChange={(e) => setForm((p) => ({ ...p, skill: e.target.value }))}
+                className={inputClass(!!errors.skill)}
+                placeholder="e.g., Mason, Electrician..."
+              />
+            </Field>
+
+            <div className="md:col-span-2 flex justify-end">
+              <button
+                disabled={!isValid || loading}
+                className={cx(
+                  "rounded-2xl px-7 py-3 text-sm font-extrabold text-white shadow-lg",
+                  "bg-gradient-to-r from-cyan-500 to-blue-600 shadow-blue-600/20 hover:opacity-95",
+                  (!isValid || loading) && "opacity-50 cursor-not-allowed hover:opacity-50"
+                )}
+              >
+                {loading ? "Saving..." : "Create Worker"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function Field({ label, icon, error, children }) {
+  return (
+    <div>
+      <label className="block text-sm font-extrabold text-white/85">{label}</label>
+      <div
+        className={cx(
+          "mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 transition ring-1 backdrop-blur",
+          error ? "bg-red-500/10 ring-red-500/25" : "bg-white/5 ring-white/10"
+        )}
+      >
+        <div className={cx("shrink-0", error ? "text-red-200" : "text-white/55")}>{icon}</div>
+        <div className="w-full">{children}</div>
+      </div>
+      {error && <p className="mt-1 text-xs font-semibold text-red-200">{error}</p>}
+    </div>
+  );
+}
+
+function inputClass(isError) {
+  return cx(
+    "w-full bg-transparent outline-none text-white/90 placeholder:text-white/35",
+    isError && "text-red-100 placeholder:text-red-200/60"
   );
 }

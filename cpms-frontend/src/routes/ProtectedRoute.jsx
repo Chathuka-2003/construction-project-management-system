@@ -1,25 +1,37 @@
 import { Navigate, Outlet } from "react-router-dom";
 
+function normalizePortalRole(roleRaw) {
+  const r = String(roleRaw || "").replace("ROLE_", "").trim().toUpperCase();
+
+  // Admin portal roles
+  if (["SUPERADMIN", "ADMIN", "MANAGER"].includes(r)) return "admin";
+
+  // Staff portal roles
+  if (["ENGINEER", "OTHER_STAFF", "WORKER"].includes(r)) return "staff";
+
+  // Customers cannot use company portal
+  if (r === "CUSTOMER") return "customer";
+
+  return null;
+}
+
 const ProtectedRoute = ({ allowedRole }) => {
   const token = localStorage.getItem("token");
-  const role = (localStorage.getItem("role") || "").toLowerCase(); // FIX: lowercase
-  const allowed = allowedRole ? allowedRole.toLowerCase() : null;
+  const rawRole = localStorage.getItem("role"); // SUPERADMIN etc
+  const portalRole = normalizePortalRole(rawRole);
 
-  console.log("Token:", token);
-  console.log("Role:", role);
-  console.log("AllowedRole:", allowed);
+  // Not logged in
+  if (!token) return <Navigate to="/login" replace />;
 
-  if (!token) {
-    // Not logged in → redirect to login
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowed && role !== allowed) {
-    // Logged in but role mismatch → unauthorized
+  // Customer blocked from company portal
+  if (portalRole === "customer" || !portalRole)
     return <Navigate to="/unauthorized" replace />;
-  }
 
-  // Allowed → render nested routes
+  // allowedRole is "admin" or "staff" (your App.jsx stays same)
+  const allowed = String(allowedRole || "").toLowerCase();
+  if (allowed && portalRole !== allowed)
+    return <Navigate to="/unauthorized" replace />;
+
   return <Outlet />;
 };
 

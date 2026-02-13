@@ -52,12 +52,12 @@ const AllocationDashboard = () => {
      Metrics Card
   ======================= */
   const MetricsCard = ({ title, value, change, trend, icon, color }) => (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 w-full">
+    <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20 w-full">
       <div className="flex justify-between items-start mb-4">
-        <div className={`${color} bg-opacity-10 p-3 rounded-xl`}>{icon}</div>
+        <div className={`${color} bg-opacity-20 p-3 rounded-xl`}>{icon}</div>
         <div
           className={`flex items-center gap-1 text-sm font-semibold ${
-            trend === "up" ? "text-green-600" : "text-red-600"
+            trend === "up" ? "text-emerald-400" : "text-red-400"
           }`}
         >
           {trend === "up" ? (
@@ -68,8 +68,8 @@ const AllocationDashboard = () => {
           {change}
         </div>
       </div>
-      <p className="text-sm text-gray-600">{title}</p>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <p className="text-sm text-white/60">{title}</p>
+      <p className="text-3xl font-bold text-white">{value}</p>
     </div>
   );
 
@@ -80,38 +80,38 @@ const AllocationDashboard = () => {
     const resources = [
       { name: "Human Resources", percentage: 55, impact: 4, color: "bg-emerald-500" },
       { name: "Energy", percentage: 25, impact: 3, color: "bg-amber-500" },
-      { name: "Materials", percentage: 20, impact: 2, color: "bg-gray-500" },
-      { name: "Water", percentage: 12, impact: 5, color: "bg-amber-600" },
-      { name: "Technology", percentage: 25, impact: 4, color: "bg-gray-800" },
+      { name: "Materials", percentage: 20, impact: 2, color: "bg-cyan-500" },
+      { name: "Water", percentage: 12, impact: 5, color: "bg-blue-500" },
+      { name: "Technology", percentage: 25, impact: 4, color: "bg-violet-500" },
     ];
 
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 w-full">
-        <h2 className="text-xl font-bold mb-6">Resource Distribution</h2>
+      <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20 w-full">
+        <h2 className="text-xl font-bold text-white mb-6">Resource Distribution</h2>
 
         <div className="space-y-4">
           {resources.map((res, idx) => (
             <div key={idx}>
               <div className="flex justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold">{res.name}</span>
+                  <span className="text-sm font-semibold text-white">{res.name}</span>
                   <div className="flex gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <Leaf
                         key={i}
                         className={`w-3 h-3 ${
                           i < res.impact
-                            ? "text-green-600 fill-green-400"
-                            : "text-gray-300"
+                            ? "text-emerald-400 fill-emerald-400"
+                            : "text-white/20"
                         }`}
                       />
                     ))}
                   </div>
                 </div>
-                <span className="text-sm font-bold">{res.percentage}%</span>
+                <span className="text-sm font-bold text-white">{res.percentage}%</span>
               </div>
 
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-white/10 rounded-full h-3">
                 <div
                   className={`${res.color} h-full rounded-full`}
                   style={{ width: `${res.percentage}%` }}
@@ -128,22 +128,22 @@ const AllocationDashboard = () => {
      Sustainability Insights
   ======================= */
   const SustainabilityInsights = () => (
-    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 shadow-sm border border-green-100 w-full">
-      <h2 className="text-xl font-bold mb-4">Sustainability Insights</h2>
+    <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-3xl p-6 ring-1 ring-emerald-500/20 backdrop-blur-xl shadow-lg shadow-black/20 w-full">
+      <h2 className="text-xl font-bold text-white mb-4">Sustainability Insights</h2>
 
       <div className="space-y-4">
         <InsightCard
-          icon={<TrendingUp className="w-5 h-5 text-green-600" />}
+          icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
           title="Great Progress!"
           desc="Carbon emissions reduced by 8% this quarter"
         />
         <InsightCard
-          icon={<Droplet className="w-5 h-5 text-blue-600" />}
+          icon={<Droplet className="w-5 h-5 text-cyan-400" />}
           title="Water Optimization"
           desc="Consider water recycling in Manufacturing"
         />
         <InsightCard
-          icon={<Sun className="w-5 h-5 text-amber-600" />}
+          icon={<Sun className="w-5 h-5 text-amber-400" />}
           title="Renewable Energy"
           desc="64% of energy comes from renewables"
         />
@@ -154,12 +154,12 @@ const AllocationDashboard = () => {
   );
 
   const InsightCard = ({ icon, title, desc }) => (
-    <div className="bg-white p-4 rounded-xl border">
+    <div className="bg-white/5 p-4 rounded-xl border border-white/10 ring-1 ring-white/5">
       <div className="flex gap-3">
-        <div className="p-2 rounded-lg bg-gray-100">{icon}</div>
+        <div className="p-2 rounded-lg bg-white/10">{icon}</div>
         <div>
-          <p className="text-sm font-semibold">{title}</p>
-          <p className="text-xs text-gray-600">{desc}</p>
+          <p className="text-sm font-semibold text-white">{title}</p>
+          <p className="text-xs text-white/60">{desc}</p>
         </div>
       </div>
     </div>
@@ -179,38 +179,45 @@ const AllocationDashboard = () => {
      RENDER
   ======================= */
   return (
-    <div className="w-full max-w-none px-6 py-6">
-      {/* Header */}
-      <div className="flex justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Resource Allocation Overview</h1>
-          <p className="text-gray-600">Sustainability-focused resource management</p>
-        </div>
-        <select
-          value={timeRange}
-          onChange={(e) => setTimeRange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="1m">1 Month</option>
-          <option value="3m">3 Months</option>
-          <option value="6m">6 Months</option>
-          <option value="1y">1 Year</option>
-        </select>
+    <div className="min-h-screen bg-slate-950 text-white w-full max-w-none px-6 py-6">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl" />
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        {metrics.map((m, i) => (
-          <MetricsCard key={i} {...m} />
-        ))}
-      </div>
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
-          <ResourceDistribution />
+      <div className="relative">
+        {/* Header */}
+        <div className="flex justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Resource Allocation Overview</h1>
+            <p className="text-white/60 text-sm mt-1">Sustainability-focused resource management</p>
+          </div>
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="border border-white/20 rounded-lg px-4 py-2 bg-white/5 text-white outline-none focus:border-white/40"
+          >
+            <option className="bg-slate-900" value="1m">1 Month</option>
+            <option className="bg-slate-900" value="3m">3 Months</option>
+            <option className="bg-slate-900" value="6m">6 Months</option>
+            <option className="bg-slate-900" value="1y">1 Year</option>
+          </select>
         </div>
-        <SustainabilityInsights />
+
+        {/* Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          {metrics.map((m, i) => (
+            <MetricsCard key={i} {...m} />
+          ))}
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="xl:col-span-2">
+            <ResourceDistribution />
+          </div>
+          <SustainabilityInsights />
+        </div>
       </div>
     </div>
   );

@@ -3,10 +3,11 @@ import Sidebar from "../components/Sidebar";
 
 export default function StaffLayout() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50">
       <Sidebar />
 
-      <main className="flex-1 w-full min-w-0 px-6 py-6 bg-gray-50 overflow-auto">
+      {/* Main: only this scrolls */}
+      <main className="flex-1 min-w-0 overflow-y-auto p-6 md:p-8">
         <Outlet />
       </main>
     </div>
