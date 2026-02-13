@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,25 +30,37 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // ✅ allow CORS preflight for ALL endpoints (fixes SockJS /ws/info 403)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // allow chat page
                         .requestMatchers("/livechat.html").permitAll()
-
                         .requestMatchers("/favicon.ico").permitAll()
 
-
-                        // allow websocket handshake
+                        // ✅ allow websocket handshake + SockJS endpoints
                         .requestMatchers("/ws/**").permitAll()
+
+                        // uploads / files
+                        .requestMatchers(
+                                "/uploads/**",
+                                "/api/files/**"
+                        ).permitAll()
 
                         // public APIs
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // protected APIs
-                        .requestMatchers("/api/projects/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/projects/**").authenticated()
                         .requestMatchers("/api/admin/**").hasAnyRole("SUPERADMIN", "ADMIN")
                         .requestMatchers("/api/chat/project/**").authenticated()
+
                         .requestMatchers("/api/company/**")
                         .hasAnyRole("SUPERADMIN","ADMIN","MANAGER","ENGINEER","OTHER_STAFF","WORKER")
+
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/workers/**").authenticated()
 
                         .anyRequest().authenticated()
                 )

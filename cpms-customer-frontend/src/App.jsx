@@ -21,37 +21,36 @@ import Profile from "./pages/customer/Profile";
 function App() {
   return (
     <BrowserRouter>
-      {/* Toaster */}
       <Toaster position="top-center" />
-
-      {/* Navbar */}
       <Navbar />
 
       <Routes>
-         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/gallery" element={<Gallery />} />
 
-        {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        
-        {/* Customer layout */}
         <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<CustomerDashboard />} />
           <Route path="dashboard" element={<CustomerDashboard />} />
+
           <Route path="project-details" element={<ProjectDetails />} />
+          <Route path="project-details/:id" element={<ProjectDetails />} />
+
           <Route path="taskprogress" element={<TaskProgress />} />
+          <Route path="taskprogress/:projectId" element={<TaskProgress />} />
+
           <Route path="payments" element={<Payments />} />
           <Route path="appointments" element={<Appointments />} />
-          <Route path="messages" element={<Messages />} />
+
+          <Route path="messages" element={<Messages/>} />
+
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
 
-       {/* Footer */}
       <Footer />
     </BrowserRouter>
   );
