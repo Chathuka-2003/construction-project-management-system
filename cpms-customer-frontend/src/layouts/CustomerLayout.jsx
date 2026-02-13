@@ -1,12 +1,17 @@
+// src/layouts/CustomerLayout.jsx
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 
 const CustomerLayout = () => {
   return (
-    <div className="flex min-h-screen bg-[#f4f1ec]">
+    <div className="flex h-screen bg-[#f4f1ec]">
       <Sidebar />
-      <div className="flex-1 p-6 overflow-y-auto">
-        <Outlet />
+
+      {/* 🔥 IMPORTANT FIX */}
+      <div className="flex-1 overflow-auto">
+        <div className="h-full min-h-0 p-6">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
