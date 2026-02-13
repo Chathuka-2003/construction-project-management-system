@@ -19,7 +19,7 @@ import StaffProfile from "./pages/staff/StaffProfile";
 import AssignedProjects from "./pages/staff/AssignedProjects";
 import StaffDashboard from "./pages/staff/StaffDashboard";
 import TaskManagement from "./pages/staff/TaskManagement";
-import StaffAppointments from "./pages/staff/StaffAppointments";
+import StaffAppointments from "./pages/staff/StaffAppointments.jsx";
 import Messages from "./pages/staff/Messages";
 
 import AddUserform from "./pages/forms/AddUserform";

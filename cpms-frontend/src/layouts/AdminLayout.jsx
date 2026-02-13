@@ -1,16 +1,16 @@
 import React from "react";
-import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50">
       {/* Sidebar */}
       <Sidebar role="admin" />
 
-      {/* Main content - REMOVED px-6 left padding, kept only py-6 and right padding */}
-      <main className="flex-1 w-full min-w-0 pr-6 py-6 bg-gray-50 overflow-y:auto overflow-hidden">
-        <Outlet /> {/* Child routes render here */}
+      {/* Main: only this scrolls */}
+      <main className="flex-1 min-w-0 overflow-y-auto p-6 md:p-8">
+        <Outlet />
       </main>
     </div>
   );
