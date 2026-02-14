@@ -13,6 +13,7 @@ import StaffLayout from "./layouts/StaffLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import StaffOverview from "./pages/staff/StaffOverview";
 import PaymentsDashboard from "./pages/payments/PaymentsDashboard";
+
 import AdminProfile from "./pages/admin/AdminProfile";
 import StaffProfile from "./pages/staff/StaffProfile";
 
@@ -35,6 +36,8 @@ import WorkerManagementDashboard from "./pages/admin/WorkerManagementDashboard";
 import NewProjectModal from "./pages/model/NewProjectModal";
 import NewTaskModal from "./pages/model/NewTaskModal";
 import RegisterUser from "./pages/admin/RegisterUser";
+
+
 
 // Optional (only if you really use these components globally)
 // import Navbar from "./components/common/Navbar.jsx";
@@ -82,7 +85,7 @@ function App() {
             <Route path="newprojects" element={<NewProjectModal />} />
             <Route path="newtask" element={<NewTaskModal />} />
             <Route path="register" element={<RegisterUser />} />
-            
+
           </Route>
         </Route>
 
@@ -110,6 +113,7 @@ function App() {
             <Route path="add-user" element={<AddUserform />} />
           </Route>
         </Route>
+
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
