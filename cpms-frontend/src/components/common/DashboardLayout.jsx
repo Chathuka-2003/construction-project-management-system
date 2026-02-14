@@ -8,6 +8,7 @@ export default function DashboardLayout({ role, children }) {
       <Sidebar role={role} />
 
       <div className="flex flex-col flex-1 h-full">
+        
         <Navbar role={role} />
         <main className="flex-1 bg-gray-100 overflow-y-auto p-6">
           {children}
