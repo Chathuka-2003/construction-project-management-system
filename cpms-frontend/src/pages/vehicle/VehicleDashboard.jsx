@@ -24,6 +24,7 @@ export default function VehicleDashboard() {
     inMaintenance: 0,
   });
 
+  
   async function load() {
     setLoading(true);
     setErr("");
