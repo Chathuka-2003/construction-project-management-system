@@ -13,6 +13,7 @@ function normalizePortalRole(roleRaw) {
   return null;
 }
 
+
 export default function CompanyLogin() {
   const navigate = useNavigate();
 
