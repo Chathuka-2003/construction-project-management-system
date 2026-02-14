@@ -6,6 +6,7 @@ export default function UploadModal({ title, onClose, children }) {
           <h3 className="text-lg font-semibold text-white">{title}</h3>
           <button className="px-2 py-1 text-white/60 hover:text-white transition" onClick={onClose}>✕</button>
         </div>
+        
         <div className="border-t border-white/10 mb-4" />
         {children}
       </div>
