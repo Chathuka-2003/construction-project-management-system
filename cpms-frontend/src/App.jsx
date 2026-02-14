@@ -82,6 +82,7 @@ function App() {
             <Route path="newprojects" element={<NewProjectModal />} />
             <Route path="newtask" element={<NewTaskModal />} />
             <Route path="register" element={<RegisterUser />} />
+            
           </Route>
         </Route>
 
@@ -91,6 +92,7 @@ function App() {
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<StaffOverview />} />
             <Route path="payment" element={<PaymentsDashboard />} />
+
 
             <Route path="projects" element={<AssignedProjects />} />
             <Route path="dashboard" element={<StaffDashboard />} />
