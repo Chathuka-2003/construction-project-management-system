@@ -120,6 +120,7 @@ export default function StaffAppointments() {
 
     return arr;
   }, [appointments, filterStatus, q, sort]);
+  
 
   const stats = useMemo(() => {
     const total = appointments.length;
