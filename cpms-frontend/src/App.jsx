@@ -38,7 +38,6 @@ import NewTaskModal from "./pages/model/NewTaskModal";
 import RegisterUser from "./pages/admin/RegisterUser";
 
 
-
 // Optional (only if you really use these components globally)
 // import Navbar from "./components/common/Navbar.jsx";
 // import Footer from "./components/common/Footer.jsx";
