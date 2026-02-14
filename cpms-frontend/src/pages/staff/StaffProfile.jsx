@@ -1,7 +1,17 @@
 // src/pages/staff/StaffProfile.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { api, getAuth } from "../../services/authService";
-import { Camera, KeyRound, Pencil, ShieldCheck, Loader2 } from "lucide-react";
+import {
+  Camera,
+  KeyRound,
+  Pencil,
+  ShieldCheck,
+  Loader2,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function normalizeRole(r) {
   return String(r || "").replace("ROLE_", "").toUpperCase();
@@ -33,6 +43,41 @@ function extractAxiosError(e) {
   if (s === 403) return "Forbidden (403). Your role has no access.";
   return e.response.data?.message || e.response.data || `Request failed (${s}).`;
 }
+
+/* ----------------------- animations (no logic change) ----------------------- */
+const ease = [0.22, 1, 0.36, 1];
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 10, scale: 0.99 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease } },
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, height: 0, y: -6 },
+  show: {
+    opacity: 1,
+    height: "auto",
+    y: 0,
+    transition: { duration: 0.35, ease },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    y: -6,
+    transition: { duration: 0.25, ease },
+  },
+};
+
+const toastVariants = {
+  hidden: { opacity: 0, y: -10, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease } },
+  exit: { opacity: 0, y: -10, scale: 0.98, transition: { duration: 0.2, ease } },
+};
 
 export default function StaffProfile() {
   const auth = getAuth(); // {token, role, email, userId, name}
@@ -223,10 +268,23 @@ export default function StaffProfile() {
   // UI
   // -----------------------------
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <motion.div
+      className="min-h-screen bg-slate-950 text-white p-6"
+      initial="hidden"
+      animate="show"
+      variants={pageVariants}
+    >
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
-        <div className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl" />
+        <motion.div
+          className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"
+          animate={{ y: [0, 10, 0], opacity: [0.9, 1, 0.9] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl"
+          animate={{ y: [0, -12, 0], opacity: [0.75, 0.9, 0.75] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
       </div>
 
       <div className="relative max-w-4xl">
@@ -236,52 +294,95 @@ export default function StaffProfile() {
             <p className="text-sm text-white/60">Manage your profile and security settings</p>
           </div>
 
-          <button
+          <motion.button
             onClick={fetchStaff}
             type="button"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-white/85 font-semibold hover:bg-white/10 transition disabled:opacity-60"
             disabled={loading}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {loading && <Loader2 className="animate-spin" size={16} />}
+            {loading ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : (
+              <RefreshCw size={16} className="opacity-80" />
+            )}
             Refresh
-          </button>
+          </motion.button>
         </div>
 
-        {err && (
-          <div className="mb-5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-            <div className="font-bold">Error</div>
-            <div className="text-rose-100/80 mt-1 break-words">{err}</div>
-          </div>
-        )}
+        {/* Alerts with animation */}
+        <AnimatePresence>
+          {err && (
+            <motion.div
+              key="err"
+              className="mb-5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              variants={toastVariants}
+            >
+              <div className="font-bold inline-flex items-center gap-2">
+                <AlertTriangle size={16} className="text-rose-200" />
+                Error
+              </div>
+              <div className="text-rose-100/80 mt-1 break-words">{err}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {okMsg && (
-          <div className="mb-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            <div className="font-bold">Success</div>
-            <div className="text-emerald-100/80 mt-1 break-words">{okMsg}</div>
-          </div>
-        )}
+        <AnimatePresence>
+          {okMsg && (
+            <motion.div
+              key="ok"
+              className="mb-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100"
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              variants={toastVariants}
+            >
+              <div className="font-bold inline-flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-200" />
+                Success
+              </div>
+              <div className="text-emerald-100/80 mt-1 break-words">{okMsg}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="bg-white/5 rounded-xl border border-white/10 backdrop-blur-xl p-6 space-y-6 ring-1 ring-white/10 shadow-lg shadow-black/20">
+        <motion.div
+          className="bg-white/5 rounded-xl border border-white/10 backdrop-blur-xl p-6 space-y-6 ring-1 ring-white/10 shadow-lg shadow-black/20"
+          variants={cardVariants}
+        >
           {/* Header */}
           <div className="flex items-center gap-6">
             <div className="relative">
-              <img
+              <motion.img
                 src={profileImage || avatarUrl}
                 alt="Profile"
                 className="w-20 h-20 rounded-full object-cover border border-white/20"
+                initial={{ scale: 0.96, opacity: 0.9 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.35, ease }}
               />
-              <label className="absolute -bottom-2 -right-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer font-semibold">
+              <motion.label
+                className="absolute -bottom-2 -right-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <span className="inline-flex items-center gap-2">
                   <Camera size={14} /> Change
                 </span>
                 <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-              </label>
+              </motion.label>
             </div>
 
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-medium text-white">{staffData.name}</h2>
-                <span className={`inline-flex px-3 py-1 rounded-xl text-xs font-bold ring-1 ${roleBadgeClass(storedRole)}`}>
+                <span
+                  className={`inline-flex px-3 py-1 rounded-xl text-xs font-bold ring-1 ${roleBadgeClass(storedRole)}`}
+                >
                   {normalizeRole(storedRole) || "STAFF"}
                 </span>
               </div>
@@ -317,7 +418,9 @@ export default function StaffProfile() {
 
             <div>
               <p className="text-white/60">Account Status</p>
-              <p className="font-medium text-emerald-400">{backendUser?.status ? String(backendUser.status) : "ACTIVE"}</p>
+              <p className="font-medium text-emerald-400">
+                {backendUser?.status ? String(backendUser.status) : "ACTIVE"}
+              </p>
             </div>
 
             <div>
@@ -333,7 +436,7 @@ export default function StaffProfile() {
 
           {/* Buttons */}
           <div className="flex gap-3">
-            <button
+            <motion.button
               onClick={() => {
                 setShowEditForm((v) => !v);
                 setShowPasswordForm(false);
@@ -342,12 +445,14 @@ export default function StaffProfile() {
               }}
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg text-sm font-semibold hover:opacity-95"
               type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Pencil size={16} />
               Edit Profile
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => {
                 setShowPasswordForm((v) => !v);
                 setShowEditForm(false);
@@ -356,153 +461,179 @@ export default function StaffProfile() {
               }}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white/80 rounded-lg text-sm font-semibold border border-white/20 hover:bg-white/15"
               type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <KeyRound size={16} />
               Change Password
-            </button>
+            </motion.button>
           </div>
 
-          {/* Edit Form */}
-          {showEditForm && (
-            <form
-              onSubmit={handleProfileSave}
-              className="border border-white/10 rounded-lg p-4 space-y-4 bg-white/5 backdrop-blur-xl ring-1 ring-white/10"
-            >
-              <h3 className="font-medium text-white">Edit Profile</h3>
-
-              <input
-                type="text"
-                name="name"
-                value={staffData.name}
-                onChange={handleProfileChange}
-                placeholder="Name"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
-
-              <input
-                type="email"
-                name="email"
-                value={staffData.email}
-                onChange={handleProfileChange}
-                placeholder="Email"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
-
-              <input
-                type="text"
-                name="contactNumber"
-                value={staffData.contactNumber}
-                onChange={handleProfileChange}
-                placeholder="Contact Number (10 digits)"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
-
-              <input
-                type="text"
-                name="address"
-                value={staffData.address}
-                onChange={handleProfileChange}
-                placeholder="Address"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
-
-              <select
-                name="gender"
-                value={staffData.gender}
-                onChange={handleProfileChange}
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-slate-950 text-white outline-none focus:border-white/40"
+          {/* Edit Form (animated open/close) */}
+          <AnimatePresence initial={false}>
+            {showEditForm && (
+              <motion.form
+                key="editForm"
+                onSubmit={handleProfileSave}
+                className="border border-white/10 rounded-lg p-4 space-y-4 bg-white/5 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden"
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                variants={sectionVariants}
               >
-                <option value="MALE">MALE</option>
-                <option value="FEMALE">FEMALE</option>
-                <option value="OTHER">OTHER</option>
-              </select>
+                <h3 className="font-medium text-white">Edit Profile</h3>
 
-              <input
-                type="number"
-                name="salary"
-                value={staffData.salary ?? 0}
-                onChange={handleProfileChange}
-                placeholder="Salary"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-                min={0}
-              />
+                <input
+                  type="text"
+                  name="name"
+                  value={staffData.name}
+                  onChange={handleProfileChange}
+                  placeholder="Name"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
 
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={savingProfile}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded text-sm font-semibold hover:opacity-95 disabled:opacity-60"
+                <input
+                  type="email"
+                  name="email"
+                  value={staffData.email}
+                  onChange={handleProfileChange}
+                  placeholder="Email"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <input
+                  type="text"
+                  name="contactNumber"
+                  value={staffData.contactNumber}
+                  onChange={handleProfileChange}
+                  placeholder="Contact Number (10 digits)"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <input
+                  type="text"
+                  name="address"
+                  value={staffData.address}
+                  onChange={handleProfileChange}
+                  placeholder="Address"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <select
+                  name="gender"
+                  value={staffData.gender}
+                  onChange={handleProfileChange}
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-slate-950 text-white outline-none focus:border-white/40"
                 >
-                  {savingProfile && <Loader2 className="animate-spin" size={16} />}
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowEditForm(false)}
-                  className="px-4 py-2 bg-white/10 text-white/80 rounded text-sm font-semibold border border-white/20 hover:bg-white/15"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
+                  <option value="MALE">MALE</option>
+                  <option value="FEMALE">FEMALE</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
 
-          {/* Password Form */}
-          {showPasswordForm && (
-            <form
-              onSubmit={handlePasswordSubmit}
-              className="border border-white/10 rounded-lg p-4 space-y-4 bg-white/5 backdrop-blur-xl ring-1 ring-white/10"
-            >
-              <h3 className="font-medium text-white">Change Password</h3>
+                <input
+                  type="number"
+                  name="salary"
+                  value={staffData.salary ?? 0}
+                  onChange={handleProfileChange}
+                  placeholder="Salary"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                  min={0}
+                />
 
-              <input
-                type="password"
-                name="currentPassword"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordChange}
-                placeholder="Current Password"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
+                <div className="flex gap-2">
+                  <motion.button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded text-sm font-semibold hover:opacity-95 disabled:opacity-60"
+                    whileHover={{ scale: savingProfile ? 1 : 1.02 }}
+                    whileTap={{ scale: savingProfile ? 1 : 0.98 }}
+                  >
+                    {savingProfile && <Loader2 className="animate-spin" size={16} />}
+                    Save
+                  </motion.button>
 
-              <input
-                type="password"
-                name="newPassword"
-                value={passwordData.newPassword}
-                onChange={handlePasswordChange}
-                placeholder="New Password"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowEditForm(false)}
+                    className="px-4 py-2 bg-white/10 text-white/80 rounded text-sm font-semibold border border-white/20 hover:bg-white/15"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
 
-              <input
-                type="password"
-                name="confirmPassword"
-                value={passwordData.confirmPassword}
-                onChange={handlePasswordChange}
-                placeholder="Confirm New Password"
-                className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
-              />
+          {/* Password Form (animated open/close) */}
+          <AnimatePresence initial={false}>
+            {showPasswordForm && (
+              <motion.form
+                key="pwForm"
+                onSubmit={handlePasswordSubmit}
+                className="border border-white/10 rounded-lg p-4 space-y-4 bg-white/5 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden"
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                variants={sectionVariants}
+              >
+                <h3 className="font-medium text-white">Change Password</h3>
 
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={savingPw}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded text-sm font-semibold hover:opacity-95 disabled:opacity-60"
-                >
-                  {savingPw && <Loader2 className="animate-spin" size={16} />}
-                  Update Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowPasswordForm(false)}
-                  className="px-4 py-2 bg-white/10 text-white/80 rounded text-sm font-semibold border border-white/20 hover:bg-white/15"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Current Password"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="New Password"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Confirm New Password"
+                  className="w-full border border-white/20 rounded px-3 py-2 text-sm bg-white/5 text-white placeholder-white/40 outline-none focus:border-white/40 focus:bg-white/10"
+                />
+
+                <div className="flex gap-2">
+                  <motion.button
+                    type="submit"
+                    disabled={savingPw}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded text-sm font-semibold hover:opacity-95 disabled:opacity-60"
+                    whileHover={{ scale: savingPw ? 1 : 1.02 }}
+                    whileTap={{ scale: savingPw ? 1 : 0.98 }}
+                  >
+                    {savingPw && <Loader2 className="animate-spin" size={16} />}
+                    Update Password
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowPasswordForm(false)}
+                    className="px-4 py-2 bg-white/10 text-white/80 rounded text-sm font-semibold border border-white/20 hover:bg-white/15"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
