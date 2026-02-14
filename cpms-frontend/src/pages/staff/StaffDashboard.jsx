@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * ✅ Connected Staff/Admin Dashboard (dark theme)
@@ -85,6 +86,37 @@ function isToday(dateLike) {
     d.getDate() === now.getDate()
   );
 }
+
+/* =======================
+   Animations (NO logic change)
+======================= */
+const ease = [0.22, 1, 0.36, 1];
+
+const pageV = {
+  hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease } },
+};
+
+const heroV = {
+  hidden: { opacity: 0, y: 14, scale: 0.99 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease } },
+};
+
+const gridV = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+
+const itemV = {
+  hidden: { opacity: 0, y: 12, scale: 0.99 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease } },
+};
+
+const toastV = {
+  hidden: { opacity: 0, y: -10, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.28, ease } },
+  exit: { opacity: 0, y: -10, scale: 0.98, transition: { duration: 0.18, ease } },
+};
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
@@ -207,83 +239,120 @@ export default function StaffDashboard() {
   const welcomeName = portalRole ? portalRole.toUpperCase() : "USER";
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <motion.div className="min-h-screen bg-slate-950 text-white" initial="hidden" animate="show" variants={pageV}>
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
-        <div className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl" />
+        <motion.div
+          className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"
+          animate={{ y: [0, 10, 0], opacity: [0.85, 1, 0.85] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -bottom-32 left-1/4 h-[380px] w-[680px] rounded-full bg-cyan-500/15 blur-3xl"
+          animate={{ y: [0, -12, 0], opacity: [0.7, 0.9, 0.7] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
       </div>
 
       <div className="relative w-full p-6 md:p-8 space-y-10">
         {/* Hero */}
-        <div className="rounded-3xl bg-white/5 p-6 md:p-8 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20">
+        <motion.div
+          className="rounded-3xl bg-white/5 p-6 md:p-8 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20"
+          variants={heroV}
+        >
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-bold text-white/80 ring-1 ring-white/10">
+              <motion.div
+                className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-bold text-white/80 ring-1 ring-white/10"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Sparkles size={16} />
                 Staff Dashboard
-              </div>
+              </motion.div>
 
               <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight">Staff Overview</h1>
               <p className="mt-2 text-sm text-white/65">Overview of your work, tasks, and schedules.</p>
 
               <div className="mt-4 flex flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-200 ring-1 ring-emerald-500/25">
+                <motion.div
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-200 ring-1 ring-emerald-500/25"
+                  animate={{ opacity: [0.9, 1, 0.9] }}
+                  transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                   System running normally
-                </div>
+                </motion.div>
 
-                <button
+                <motion.button
                   onClick={fetchCounts}
                   type="button"
                   className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-bold text-white/80 ring-1 ring-white/10 hover:bg-white/10 hover:ring-white/20 transition"
                   title="Refresh"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   ↻ Refresh
-                </button>
+                </motion.button>
               </div>
 
-              {!!err && (
-                <div className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-100">
-                  <div className="font-bold">Dashboard Warning</div>
-                  <div className="mt-1 text-rose-100/80 break-words">{err}</div>
-                </div>
-              )}
+              <AnimatePresence>
+                {!!err && (
+                  <motion.div
+                    key="dash-err"
+                    className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-100"
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    variants={toastV}
+                  >
+                    <div className="font-bold">Dashboard Warning</div>
+                    <div className="mt-1 text-rose-100/80 break-words">{err}</div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Quick Tip Card */}
-            <div className="w-full md:w-[380px] rounded-3xl bg-slate-950/40 p-5 ring-1 ring-white/10 backdrop-blur shadow-md shadow-black/20">
+            <motion.div
+              className="w-full md:w-[380px] rounded-3xl bg-slate-950/40 p-5 ring-1 ring-white/10 backdrop-blur shadow-md shadow-black/20"
+              variants={itemV}
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.25 }}
+            >
               <p className="text-xs font-bold tracking-wider text-white/60 uppercase">Welcome</p>
               <p className="mt-2 font-extrabold text-white">Welcome, {welcomeName}</p>
               <p className="mt-1 text-sm text-white/60">
                 Start by checking your assigned projects and tasks for today.
               </p>
 
-              <button
+              <motion.button
                 onClick={() => safeGo(`${base}/projects`)}
                 className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-extrabold shadow-lg shadow-blue-600/20 hover:opacity-95"
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 View projects
                 <ArrowRight size={16} />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <motion.div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4" variants={gridV} initial="hidden" animate="show">
           {stats.map((s) => (
             <StatCard key={s.title} icon={s.icon} title={s.title} value={s.value} tone={s.tone} />
           ))}
-        </div>
+        </motion.div>
 
         {/* Quick Actions */}
         <div>
           <h2 className="text-xl font-extrabold">Quick Actions</h2>
           <p className="mt-1 text-sm text-white/60">Jump into the most used staff operations.</p>
 
-          <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <motion.div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3" variants={gridV} initial="hidden" animate="show">
             {actions.map((a) => (
               <ActionImageCard
                 key={a.title}
@@ -293,12 +362,19 @@ export default function StaffDashboard() {
                 onClick={() => safeGo(a.go)}
               />
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        <div className="pt-2 text-center text-xs text-white/45">© 2026 Construction Project Management System</div>
+        <motion.div
+          className="pt-2 text-center text-xs text-white/45"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+        >
+          © 2026 Construction Project Management System
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -315,19 +391,36 @@ function StatCard({ icon: Icon, title, value, tone }) {
   const t = toneMap[tone] || toneMap.blue;
 
   return (
-    <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20">
+    <motion.div
+      className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-xl shadow-lg shadow-black/20"
+      variants={itemV}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="flex items-center justify-between">
-        <div className={cx("rounded-2xl p-3 ring-1", t.iconBox)}>
+        <motion.div
+          className={cx("rounded-2xl p-3 ring-1", t.iconBox)}
+          whileHover={{ scale: 1.05, rotate: 1 }}
+          transition={{ duration: 0.2 }}
+        >
           <Icon className={cx("h-6 w-6", t.icon)} />
-        </div>
+        </motion.div>
         <span className={cx("rounded-full px-3 py-1 text-xs font-bold ring-1", t.chip)}>Live</span>
       </div>
 
       <div className="mt-5">
-        <p className="text-3xl font-extrabold">{value}</p>
+        <motion.p
+          className="text-3xl font-extrabold"
+          key={value}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease }}
+        >
+          {value}
+        </motion.p>
         <p className="mt-1 text-sm text-white/60">{title}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -343,17 +436,23 @@ function ActionImageCard({ title, subtitle, tone, onClick }) {
   };
 
   return (
-    <button
+    <motion.button
       onClick={onClick}
       type="button"
-      className="group overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10 shadow-lg shadow-black/20 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/10 text-left"
+      className="group overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10 shadow-lg shadow-black/20 backdrop-blur-xl transition text-left"
+      variants={itemV}
+      whileHover={{ y: -6, backgroundColor: "rgba(255,255,255,0.08)" }}
+      whileTap={{ scale: 0.99 }}
     >
       <div className="relative h-44 w-full">
-        <img
+        <motion.img
           src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=70"
           alt={title}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover"
           loading="lazy"
+          initial={false}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.5, ease }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/35 to-transparent" />
 
@@ -376,10 +475,16 @@ function ActionImageCard({ title, subtitle, tone, onClick }) {
             )}
           >
             Open
-            <ArrowRight size={16} className="transition group-hover:translate-x-0.5" />
+            <motion.span
+              className="inline-flex"
+              whileHover={{ x: 2 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ArrowRight size={16} className="transition" />
+            </motion.span>
           </span>
         </div>
       </div>
-    </button>
+    </motion.button>
   );
 }
