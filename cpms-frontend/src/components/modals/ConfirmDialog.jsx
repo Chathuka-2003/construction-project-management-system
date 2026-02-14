@@ -5,6 +5,7 @@ export default function ConfirmDialog({ message, onNo, onYes }) {
         <h3 className="text-lg font-semibold text-white mb-3">Confirm</h3>
         <p className="text-white/70 mb-6">{message}</p>
         <div className="flex justify-end gap-2">
+          
           <button className="px-4 py-2 rounded-lg bg-white/10 text-white/80 border border-white/20 hover:bg-white/15 transition font-semibold text-sm" onClick={onNo}>No</button>
           <button className="px-4 py-2 rounded-lg bg-red-600/30 text-red-300 border border-red-500/30 hover:bg-red-600/50 transition font-semibold text-sm" onClick={onYes}>Yes</button>
         </div>
