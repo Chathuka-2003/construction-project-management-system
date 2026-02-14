@@ -8,6 +8,7 @@ function normalizePortalRole(roleRaw) {
 
   // Staff portal roles
   if (["ENGINEER", "OTHER_STAFF", "WORKER"].includes(r)) return "staff";
+  
 
   // Customers cannot use company portal
   if (r === "CUSTOMER") return "customer";
