@@ -4,6 +4,7 @@ export default function SummaryCard({ icon, label, value }) {
       <div>{icon}</div>  {/* <- This will render the Lucide icon */}
       <div>
         <p className="text-gray-500 text-sm">{label}</p>
+        
         <p className="text-xl font-bold">{value}</p>
       </div>
     </div>
