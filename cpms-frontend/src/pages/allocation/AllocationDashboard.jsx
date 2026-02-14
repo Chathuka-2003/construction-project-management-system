@@ -10,6 +10,7 @@ import {
   Target,
 } from "lucide-react";
 
+
 const AllocationDashboard = () => {
   const role = localStorage.getItem("role") || "staff";
   const [timeRange, setTimeRange] = useState("6m");
@@ -20,6 +21,7 @@ const AllocationDashboard = () => {
   /* =======================
      Alerts Logic
   ======================= */
+  
   const handleRequestAllocation = () => {
     const newAlerts = [
       ...alerts,
