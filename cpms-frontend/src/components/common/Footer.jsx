@@ -15,7 +15,6 @@ export default function Card({ title, subtitle, right, accentColor, onClick, chi
           {subtitle ? <p className="card-sub">{subtitle}</p> : null}
         </div>
         {right ? <div>{right}</div> : null}
-        
       </div>
       {children}
     </div>
