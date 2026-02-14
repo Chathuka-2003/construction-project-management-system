@@ -10,12 +10,14 @@ export default function WorkerTasks() {
       location: "Colombo Site A",
       vehicle: "LK-CAA-2145",
     },
+
     {
       name: "Brick Laying",
       status: "In Progress",
       location: "Kandy Highway Project",
       vehicle: "LK-WP-5632",
     },
+    
     {
       name: "Material Transport",
       status: "Pending",
