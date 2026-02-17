@@ -10,7 +10,7 @@ api.interceptors.request.use((config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
-
+//form data and conditions
 const ENDPOINTS = {
   list: "/api/vehicles",
   create: "/api/vehicles",
