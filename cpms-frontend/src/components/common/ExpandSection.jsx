@@ -16,6 +16,7 @@ export default function ExpandSection({ title, count, defaultOpen = false, child
         </div>
         <span>{open ? "▾" : "▸"}</span>
       </div>
+      
 
       {open && (
         <>

@@ -8,6 +8,7 @@ function StatCard({ title, value, color, icon: Icon }) {
           <Icon className={`${color}`} size={28} />
         </div>
       )}
+      
       <div>
         <p className="text-sm text-gray-500">{title}</p>
         <h2 className={`text-2xl font-semibold mt-1 ${color}`}>{value}</h2>

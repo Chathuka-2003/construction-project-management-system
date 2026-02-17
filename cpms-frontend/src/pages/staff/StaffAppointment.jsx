@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
+
 const STORAGE_KEY = "cpms_staff_appointments_v1";
+
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);

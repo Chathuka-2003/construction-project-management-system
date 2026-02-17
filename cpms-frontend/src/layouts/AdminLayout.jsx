@@ -8,6 +8,7 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <Sidebar role="admin" />
 
+
       {/* Main: only this scrolls */}
       <main className="flex-1 min-w-0 overflow-y-auto p-6 md:p-8">
         <Outlet />

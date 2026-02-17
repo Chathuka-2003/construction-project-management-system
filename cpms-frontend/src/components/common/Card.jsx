@@ -10,6 +10,7 @@ export default function Card({ title, subtitle, right, accentColor, onClick, chi
       tabIndex={onClick ? 0 : undefined}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+        
         <div>
           <p className="card-title">{title}</p>
           {subtitle ? <p className="card-sub">{subtitle}</p> : null}

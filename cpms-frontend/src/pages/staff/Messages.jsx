@@ -8,6 +8,7 @@ import { Client as StompClient } from "@stomp/stompjs";
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 // keep same as backend multipart limit
+
 const MAX_FILE_MB = 20;
 const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 

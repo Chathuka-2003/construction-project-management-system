@@ -9,6 +9,7 @@ const SectionWrapper = ({ icon, title, description, children, variant }) => {
 
   return (
     <div className={`${bgClass} p-6 rounded-xl ${shadowClass} mb-6`}>
+      
       {/* Icon + Title */}
       <div className="flex items-center mb-4">
         {icon && <span className="text-2xl mr-2">{icon}</span>}

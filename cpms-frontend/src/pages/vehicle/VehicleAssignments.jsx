@@ -20,6 +20,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
 const ENDPOINTS = {
   vehicles: "/api/vehicles",
   projects: "/api/projects",

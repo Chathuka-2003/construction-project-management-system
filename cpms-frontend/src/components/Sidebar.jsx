@@ -15,6 +15,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+
 /**
  * Backend roles:
  * SUPERADMIN, ADMIN, MANAGER  -> "admin"
@@ -232,6 +233,7 @@ export default function Sidebar({ role: roleProp }) {
                     <div className="ml-4 mt-1 space-y-1 border-l border-slate-800 pl-3">
                       {item.children.map((sub) => {
                         const to = typeof sub.to === "function" ? sub.to(portalRole) : sub.to;
+                        
 
                         return (
                           <NavLink

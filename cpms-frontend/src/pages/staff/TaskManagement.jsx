@@ -14,6 +14,7 @@ import NewTaskModal from "../model/NewTaskModal";
 
 function cx(...c) {
   return c.filter(Boolean).join(" ");
+  
 }
 
 function progressTone(p) {
